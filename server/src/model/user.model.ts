@@ -4,12 +4,14 @@ export interface User {
     email: string;
     password: string;
     userType: UserType;
-    accountNumber?: string;
+    accountNumber: string;
+    telephone: number;
 }   
 
 
 export enum UserType {
 
     ADMIN = "admin",
-    CLIENT = "client"
+    CLIENT = "client",
+    OPERATOR = "operator",
 }

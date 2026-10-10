@@ -1,9 +1,11 @@
 [
   {
     "id": 1,
-    "name": "Lucía",
-    "email": "lucia@gmail.com",
+    "name": "Lucíaaaa",
+    "email": "luciaaaaaa@gmail.com",
     "password": "123456",
-    "userType": "admin"
+    "userType": "admin",
+    "accountNumber": "ES1363193655702847746416",
+    "telephone": 627038834
   }
 ]
