@@ -9,11 +9,23 @@ export class UserService {
         this.userRepository = new UserRepository();
     }
 
+    public getUsers(): User[] {
+        return this.userRepository.getUsers();
+    }
+
+    public getUserByEmail(email: string, password: string): User | null {
+        let user = this.userRepository.getUserByEmail(email);
+        if (user && user.password === password) {
+            return user;
+        }
+        else return null;
+    }
+
     public createUser (
         userData: { name: string; email: string; password: string; telephone: number }): User {
         
         // comprobamos que el email introducido no está registrado
-        let users = this.userRepository.getUsers();
+        let users = this.getUsers();
         const emailExists = users.some(user => user.email === userData.email);
         if (emailExists) {
             throw new Error("El email ya está registrado");
@@ -25,7 +37,7 @@ export class UserService {
         // Algoritmo para cifrar número de cuenta y password
         //const accountNumberEncrypted = servicioqueencripte(accountNUmber);
         //const passencriptada = servicioqueencripte(userData.password);
-        
+
         const id = users.length > 0 ? users[users.length - 1].id + 1 : 1;
         const newUser: User = {
             id: id,

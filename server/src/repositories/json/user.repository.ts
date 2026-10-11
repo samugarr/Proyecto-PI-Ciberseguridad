@@ -26,4 +26,14 @@ export class UserRepository {
         const users: User[] = JSON.parse(data);
         return users;
     }   
+
+    getUserById(id: number): User | undefined {
+        const users = this.getUsers();
+        return users.find(user => user.id === id);
+    }
+
+    getUserByEmail(email: string): User | undefined {
+        const users = this.getUsers();
+        return users.find(user => user.email === email);
+    }       
 }
