@@ -3,7 +3,7 @@
     "id": 1,
     "name": "Lucíaaaa",
     "email": "luciaaaaaa@gmail.com",
-    "password": "123456",
+    "password": "$argon2id$v=19$m=65536,p=4,t=3$U3I8RwMBL9mgLSNqQUpoUA$9f3MBSi6Bhz8u66xic/voLw1KE4iffhGar8IP7BoivY",
     "userType": "admin",
     "accountNumber": "ES1363193655702847746416",
     "telephone": 627038834

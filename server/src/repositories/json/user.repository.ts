@@ -32,8 +32,8 @@ export class UserRepository {
         return users.find(user => user.id === id);
     }
 
-    getUserByEmail(email: string): User | undefined {
+    getUserByEmail(email: string): User | null {
         const users = this.getUsers();
-        return users.find(user => user.email === email);
+        return users.find(user => user.email === email) || null;
     }       
 }

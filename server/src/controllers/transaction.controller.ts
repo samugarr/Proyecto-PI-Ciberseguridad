@@ -14,4 +14,9 @@ export class TransactionController {
         const transaction = this.transactionService.createTransaction(data);
         return res.status(201).json(transaction);
     }
+
+    public getTransactions(req: Request, res: Response) {
+        const transactions = this.transactionService.getTransactions();
+        return res.status(200).json(transactions);
+    }
  } 
