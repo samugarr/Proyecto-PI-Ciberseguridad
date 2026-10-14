@@ -1,9 +1,17 @@
 import express from "express";
+import cors from "cors";
 import { UserController } from "./src/controllers/user.controller";
 import { TransactionController } from "./src/controllers/transaction.controller";
 import { LoginController } from "./src/controllers/login.controller";
 
 const app = express();
+
+// Permitir peticiones desde Angular
+app.use(cors({
+  origin: "http://localhost:4200",
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
 
 app.use(express.json());
 
