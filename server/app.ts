@@ -25,6 +25,7 @@ app.post("/transaction", transactionController.createTransaction.bind(transactio
 
 const loginController = new LoginController();
 app.post("/login", loginController.login.bind(loginController));
+app.post("/salt", loginController.getSalt.bind(loginController));
 
 
 app.listen(3000, () => {

@@ -22,4 +22,15 @@ export class LoginController {
                 res.status(401).json({ error: error.message });
             });
     }
+
+    // POST /salt  { email }  ->  { salt }
+    public getSalt(req: Request, res: Response) {
+        const { email } = req.body;
+        try {
+            const salt = this.loginService.getSalt(email);
+            res.status(200).json({ salt: salt });
+        } catch (error: any) {
+            res.status(404).json({ error: error.message });
+        }
+    }
 }

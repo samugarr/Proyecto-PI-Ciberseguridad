@@ -2,12 +2,14 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
+import { deriveKeys } from '../../crypto/crypto.service';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, RouterLink],
   templateUrl: './login.page.html',
   styleUrls: ['./login.page.css']})
 
@@ -19,22 +21,27 @@ export class LoginPage {
   constructor(private http: HttpClient,  private router: Router
 ) {}
 
-  login() {
-    const body = {
-      email: this.email,
-      password: this.password
-    };
+  async login() {
+    try {
+      // 1) Pedimos al servidor la sal de este usuario (la sal no es secreta)
+      const saltResponse: any = await firstValueFrom(
+        this.http.post('/api/salt', { email: this.email })
+      );
 
-    this.http.post('/api/login', body)
-      .subscribe({
-        next: (response: any) => {
-          console.log('Login correcto:', response);
+      // 2) Argon2id en el navegador con la MISMA sal que en el registro
+      //    -> obtenemos la misma K_auth que se calculó al registrarse
+      const keys = await deriveKeys(this.password, saltResponse.salt);
+
+      // 3) Enviamos K_auth (NO la contraseña)
+      const response = await firstValueFrom(
+        this.http.post('/api/login', { email: this.email, password: keys.kAuth })
+      );
+      console.log('Login correcto:', response);
       this.router.navigate(['/transactions']);
-        },
-        error: (error: any) => {
-          console.error('Error en el login:', error);
-          alert('Error al iniciar sesión');
-        }
-      });
+
+    } catch (error: any) {
+      console.error('Error en el login:', error);
+      alert(error.error?.error ?? 'Error al iniciar sesión');
+    }
   }
 }

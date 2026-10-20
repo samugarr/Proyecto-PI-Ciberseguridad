@@ -31,4 +31,14 @@ export class LoginService {
         }    
     }
 
+
+    // Devuelve la sal del usuario para que el navegador pueda derivar K_auth
+    public getSalt(email: string): string {
+        const user = this.userService.getUserByEmail(email);
+        if (!user || !user.salt) {
+            throw new Error("Usuario no encontrado");
+        }
+        return user.salt;
+    }
+
 }

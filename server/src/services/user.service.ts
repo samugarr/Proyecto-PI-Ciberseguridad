@@ -1,6 +1,7 @@
 import { User, UserType } from "../model/user.model";
 import { UserRepository } from "../repositories/json/user.repository";
 import { EncryptionService } from "./encryption.service";
+import { randomInt } from "crypto";
 
 
 export class UserService {
@@ -22,7 +23,7 @@ export class UserService {
     }
 
     public async createUser (
-        userData: { name: string; email: string; password: string; telephone: number }): Promise<User> {
+        userData: { name: string; email: string; password: string; salt: string; telephone: number }): Promise<User> {
         
         // comprobamos que el email introducido no está registrado
         let users = this.getUsers();
@@ -31,12 +32,21 @@ export class UserService {
             throw new Error("El email ya está registrado");
         }
         
-        // creamos un número de cuenta aleatorio
-        const accountNumber =   "ES" + Math.random().toString().slice(2, 24); // Genera un número aleatorio de 22 dígitos y lo convierte en string  
+
+        // Usamos randomInt del módulo "crypto" de Node 
+        let digits = "";
+        for (let i = 0; i < 22; i++) {
+            digits += randomInt(0, 10).toString();
+        }
+        const accountNumber = "ES" + digits; // ES + 22 dígitos
 
         // Algoritmo para cifrar número de cuenta y password
         //const accountNumberEncrypted = servicioqueencripte(accountNUmber);
 
+        // userData.password ya NO es la contraseña: es K_auth, que el navegador
+        // ha calculado con Argon2id. Aun así la volvemos a hashear con Argon2
+        // aquí, para que si alguien roba users.json no pueda usar el hash
+        // directamente para iniciar sesión.
         const passwordHash = await this.encryptionService.hashPassword(userData.password);
 
         const id = users.length > 0 ? users[users.length - 1].id + 1 : 1;
@@ -45,6 +55,7 @@ export class UserService {
             name: userData.name,
             email: userData.email,
             password: passwordHash,
+            salt: userData.salt,
             userType: UserType.CLIENT,
             accountNumber: accountNumber,
             telephone: userData.telephone,
