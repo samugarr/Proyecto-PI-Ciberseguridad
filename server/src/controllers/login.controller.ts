@@ -15,8 +15,18 @@ export class LoginController {
     public async login(req: Request, res: Response) {
         const { email, password } = req.body;
         return this.loginService.login(email, password)
-            .then(() => {
-                res.status(200).json({ message: "Inicio de sesión exitoso" });
+            .then((user) => {
+                // Solo devolvemos datos públicos (nunca el hash ni la sal)
+                res.status(200).json({
+                    message: "Inicio de sesión exitoso",
+                    user: {
+                        name: user.name,
+                        email: user.email,
+                        accountNumber: user.accountNumber,
+                        telephone: user.telephone,
+                        userType: user.userType
+                    }
+                });
             })
             .catch((error) => {
                 res.status(401).json({ error: error.message });

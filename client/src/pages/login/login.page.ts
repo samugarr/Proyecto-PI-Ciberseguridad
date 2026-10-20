@@ -33,10 +33,13 @@ export class LoginPage {
       const keys = await deriveKeys(this.password, saltResponse.salt);
 
       // 3) Enviamos K_auth (NO la contraseña)
-      const response = await firstValueFrom(
+      const response: any = await firstValueFrom(
         this.http.post('/api/login', { email: this.email, password: keys.kAuth })
       );
       console.log('Login correcto:', response);
+
+      // Guardamos los datos públicos del usuario para las demás páginas
+      sessionStorage.setItem('user', JSON.stringify(response.user));
       this.router.navigate(['/transactions']);
 
     } catch (error: any) {

@@ -25,13 +25,40 @@ export class TransactionService {
         return [];
     }
 
-    public createTransaction (data: any): Transaction {
+    public createTransaction (data: { emailFrom: string; telephoneTo: string; amount: number; description: string }): Transaction {
+        const sender = this.userService.getUserByEmail(data.emailFrom);
+        if (!sender) {
+            throw new Error("Usuario emisor no encontrado");
+        }
+
+        const telephoneTo = String(data.telephoneTo ?? "").replace(/\s/g, "");
+        const receiver = this.userService.getUserByTelephone(telephoneTo);
+        if (!receiver) {
+            throw new Error("No existe ningún usuario con ese teléfono");
+        }
+        if (receiver.accountNumber === sender.accountNumber) {
+            throw new Error("No puedes enviarte dinero a tu propia cuenta");
+        }
+
+        // Cantidad positiva con como máximo 2 decimales (céntimos)
+        const amount = Number(data.amount);
+        if (!Number.isFinite(amount) || amount <= 0 || Math.round(amount * 100) !== amount * 100) {
+            throw new Error("La cantidad debe ser un número positivo con como máximo 2 decimales");
+        }
+
         let transactions = this.transactionRepository.getTransactions();
         const id = transactions.length > 0 ? transactions[transactions.length - 1].id + 1 : 1;
 
+        // Construimos la transacción con los datos del servidor, no con lo que mande el cliente
         const newTransaction: Transaction = {
             id: id,
-            ...data
+            accountFrom: sender.accountNumber,
+            accountTo: receiver.accountNumber,
+            telephoneFrom: String(sender.telephone),
+            telephoneTo: String(receiver.telephone),
+            description: data.description.trim(),
+            amount: amount,
+            date: new Date()
         };
 
         this.transactionRepository.createTransaction(newTransaction);
