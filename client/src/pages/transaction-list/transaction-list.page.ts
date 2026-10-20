@@ -1,5 +1,5 @@
 
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { DatePipe } from '@angular/common';
@@ -11,7 +11,7 @@ import { DatePipe } from '@angular/common';
   templateUrl: './transaction-list.page.html',
   styleUrls: ['./transaction-list.page.css']})
 
-export class TransactionListPage {
+export class TransactionListPage implements OnInit {
 
   transactions: any[] = [];
 

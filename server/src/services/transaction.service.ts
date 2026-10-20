@@ -13,15 +13,17 @@ export class TransactionService {
     }
     
     public getTransactions(): Transaction[] {
+      return this.transactionRepository.getTransactions();
+
         //obtener usuario logeado
-        const user = this.userService.getUserByEmail("luciaaaa@gmail.com");
+      /*  const user = this.userService.getUserByEmail("luciaaaa@gmail.com");
         if (user) {
             if (user?.userType === "admin") {
                 return this.transactionRepository.getTransactions();
             } else {
                 return this.transactionRepository.getTransactionsByAccount(user?.accountNumber);
             }
-        }
+        }*/
         return [];
     }
 

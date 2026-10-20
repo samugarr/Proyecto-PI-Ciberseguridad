@@ -20,6 +20,7 @@ app.post("/user", userController.registerUser.bind(userController));
 
 
 const transactionController = new TransactionController();
+app.get("/transactions", transactionController.getTransactions.bind(transactionController));
 app.post("/transaction", transactionController.createTransaction.bind(transactionController));
 
 

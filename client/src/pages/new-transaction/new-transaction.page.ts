@@ -6,13 +6,13 @@ import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 
 @Component({
-  selector: 'app-transaction-list',
+  selector: 'app-new-transaction',
   standalone: true,
   imports: [FormsModule],
   templateUrl: './new-transaction.page.html',
   styleUrls: ['./new-transaction.page.css']})
 
-export class TransactionListPage implements OnInit {
+export class NewTransactionPage implements OnInit {
 
   user: { name: string; email: string; accountNumber: string; telephone: string } | null = null;
   telephoneTo = '';
