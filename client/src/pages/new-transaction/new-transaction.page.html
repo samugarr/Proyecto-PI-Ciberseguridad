@@ -1,0 +1,50 @@
+<div class="login-page">
+  <div class="login-card">
+
+    <div class="login-icon">
+      💸
+    </div>
+
+    <h1>Nueva transacción</h1>
+    <p class="subtitle">Envía dinero a otro usuario con su teléfono</p>
+
+    @if (user) {
+      <div class="form-group">
+        <label for="accountFrom">Tu cuenta</label>
+        <input type="text" id="accountFrom" [value]="user.accountNumber" disabled>
+      </div>
+    }
+
+    <form (ngSubmit)="createTransaction()">
+
+      <div class="form-group">
+        <label for="telephoneTo">Teléfono de destino</label>
+        <input type="tel" id="telephoneTo" name="telephoneTo" [(ngModel)]="telephoneTo"
+               placeholder="600000000" autocomplete="off" required>
+      </div>
+
+      <div class="form-group">
+        <label for="amount">Cantidad (€)</label>
+        <input type="number" id="amount" name="amount" [(ngModel)]="amount"
+               placeholder="0.00" min="0.01" step="0.01" required>
+      </div>
+
+      <div class="form-group">
+        <label for="description">Descripción</label>
+        <textarea id="description" name="description" [(ngModel)]="description"
+                  placeholder="Ej: Cena del viernes" maxlength="140" required></textarea>
+      </div>
+
+      <button type="submit" [disabled]="sending">
+        {{ sending ? 'Enviando...' : 'Enviar' }}
+        <span>→</span>
+      </button>
+
+    </form>
+
+    <p class="footer-text">
+      Sistema de gestión de transacciones
+    </p>
+
+  </div>
+</div>

@@ -1,1 +1,111 @@
-<h1>hola!</h1>
+
+<div class="transactions-page">
+
+  <!-- Cabecera -->
+  <header class="page-header">
+    <div>
+      <h1>Transacciones</h1>
+      <p>Consulta y gestiona todos los movimientos de tus cuentas.</p>
+    </div>
+
+    <!--<button class="btn-primary" (click)="generateReport()">
+      <span>📄</span> Generar informe
+    </button>-->
+  </header>
+
+  <!-- Listado -->
+  <section class="transactions-panel">
+
+    <div class="panel-header">
+      <div>
+        <h2>Listado de movimientos</h2>
+        <p>Revisa el detalle de tus operaciones.</p>
+      </div>
+    </div>
+
+    <!-- Buscador y filtros -->
+    <div class="filters">
+      <!--<div class="search-box">
+        <span>⌕</span>
+        <input
+          type="text"
+          placeholder="Buscar por concepto o cuenta..."
+          [(ngModel)]="searchTerm"
+        />
+      </div>-->
+
+      <!--<select [(ngModel)]="selectedType">
+        <option value="">Todos los tipos</option>
+        <option value="Ingreso">Ingresos</option>
+        <option value="Gasto">Gastos</option>
+        <option value="Transferencia">Transferencias</option>
+      </select>-->
+
+      <!--<select [(ngModel)]="selectedStatus">
+        <option value="">Todos los estados</option>
+        <option value="Completada">Completadas</option>
+        <option value="Pendiente">Pendientes</option>
+        <option value="Rechazada">Rechazadas</option>
+      </select>-->
+    </div>
+
+    <!-- Tabla -->
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Transacción</th>
+            <th>Cuenta / IBAN</th>
+            <th>Fecha</th>
+            <th>Descripción</th>
+            <th>Cantidad</th>
+            <th class="amount-column">Importe</th>
+          </tr>
+        </thead>
+
+
+      <tbody>
+        @for (transaction of transactions; track transaction.id) {
+          <tr>
+            <td>
+              <div class="transaction-name">
+                {{ transaction.id }}
+              </div>
+            </td>
+
+            <td class="account-cell">
+              {{ transaction.accountTo }}
+            </td>
+
+            <td>
+              {{ transaction.date | date:'dd/MM/yyyy' }}
+            </td>
+
+            <td>
+              {{ transaction.description }}
+            </td>
+            <td>
+              {{ transaction.amount }}
+            </td>
+
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="6" class="empty-state">
+              <span>🔎</span>
+              <p>No se han encontrado transacciones.</p>
+              <small>Prueba a cambiar los filtros de búsqueda.</small>
+            </td>
+          </tr>
+        }
+      </tbody>
+
+      </table>
+    </div>
+
+    <footer class="table-footer">
+      Mostrando {{ transactions.length }} transacciones
+    </footer>
+
+  </section>
+</div>

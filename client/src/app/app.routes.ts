@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
 import { LoginPage } from '../pages/login/login.page';
 import { RegisterPage } from '../pages/register/register.page';
-import { TransactionListPage } from '../pages/transaction-list/transaction-list.page';
+import { TransactionListPage } from '../pages/new-transaction/new-transaction.page';
 
 export const routes: Routes = [
   {

@@ -36,4 +36,9 @@ export class UserRepository {
         const users = this.getUsers();
         return users.find(user => user.email === email) || null;
     }       
+
+    getUserByTelephone(telephone: string): User | null {
+        const users = this.getUsers();
+        return users.find(user => String(user.telephone) === telephone) || null;
+    }
 }

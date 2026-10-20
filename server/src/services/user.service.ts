@@ -22,6 +22,10 @@ export class UserService {
         return this.userRepository.getUserByEmail(email);
     }
 
+    public getUserByTelephone(telephone: string): User | null {
+        return this.userRepository.getUserByTelephone(telephone);
+    }
+
     public async createUser (
         userData: { name: string; email: string; password: string; salt: string; telephone: number }): Promise<User> {
         
@@ -30,6 +34,12 @@ export class UserService {
         const emailExists = users.some(user => user.email === userData.email);
         if (emailExists) {
             throw new Error("El email ya está registrado");
+        }
+
+        // comprobamos que el teléfono no está registrado (se usa para recibir transacciones)
+        const telephoneExists = users.some(user => String(user.telephone) === String(userData.telephone));
+        if (telephoneExists) {
+            throw new Error("El teléfono ya está registrado");
         }
         
 
