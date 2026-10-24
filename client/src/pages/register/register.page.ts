@@ -3,7 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Router, RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
-import { deriveKeys, generateSalt } from '../../crypto/crypto.service';
+import { deriveKeys, generateSalt } from '../../services/crypto.service';
 
 @Component({
   selector: 'app-register',
@@ -15,7 +15,7 @@ import { deriveKeys, generateSalt } from '../../crypto/crypto.service';
 })
 export class RegisterPage {
 
- 
+
   name = '';
   email = '';
   telephone = '';
