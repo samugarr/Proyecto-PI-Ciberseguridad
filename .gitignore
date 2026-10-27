@@ -1,4 +1,5 @@
 node_modules/
 vendor/
 dist/
-server/certs/server.key
+server/certs/
+server/secrets/

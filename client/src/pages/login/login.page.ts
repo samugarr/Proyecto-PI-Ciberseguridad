@@ -1,44 +1,43 @@
-
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Router, RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
-import { deriveKeys } from '../../services/crypto.service';
+import { decryptPrivateKey, deriveKeys, importPublicKey } from '../../services/crypto.service';
+import { KeyStoreService } from '../../services/key-store.service';
+import { LoginResponse, SaltResponse } from '../../models/auth.model';
 
 @Component({
   selector: 'app-login',
   standalone: true,
   imports: [FormsModule, RouterLink],
   templateUrl: './login.page.html',
-  styleUrls: ['./login.page.css']})
-
+  styleUrls: ['./login.page.css']
+})
 export class LoginPage {
 
   email = '';
   password = '';
 
-  constructor(private http: HttpClient,  private router: Router
-) {}
+  constructor(private http: HttpClient, private router: Router, private keyStore: KeyStoreService) {}
 
   async login() {
     try {
-      // 1) Pedimos al servidor la sal de este usuario (la sal no es secreta)
-      const saltResponse: any = await firstValueFrom(
-        this.http.post('/api/salt', { email: this.email })
-      );
+      // 1. La sal no es secreta: se pide al servidor para derivar las mismas claves que en el registro
+      const { salt } = await firstValueFrom(
+        this.http.post<SaltResponse>('/api/salt', { email: this.email }));
+      const { kAuth, kEnc } = await deriveKeys(this.password, salt);
 
-      // 2) Argon2id en el navegador con la MISMA sal que en el registro
-      //    -> obtenemos la misma K_auth que se calculó al registrarse
-      const keys = await deriveKeys(this.password, saltResponse.salt);
+      // 2. Autenticación con K_auth. El servidor devuelve E_{K_enc}(k_u)
+      const response = await firstValueFrom(
+        this.http.post<LoginResponse>('/api/login', { email: this.email, kAuth }));
 
-      // 3) Enviamos K_auth (NO la contraseña)
-      const response: any = await firstValueFrom(
-        this.http.post('/api/login', { email: this.email, password: keys.kAuth })
-      );
-      console.log('Login correcto:', response);
+      // 3. Solo quien conoce la contraseña puede obtener K_enc y descifrar k_u
+      const privateKey = await decryptPrivateKey(response.keys, kEnc);
+      const publicKey = await importPublicKey(response.keys.publicKey);
+      this.keyStore.setSessionKeys(kEnc, privateKey, publicKey);
 
-      // Guardamos los datos públicos del usuario para las demás páginas
+      // Datos públicos del usuario para las demás páginas (sin claves)
       sessionStorage.setItem('user', JSON.stringify(response.user));
       this.router.navigate(['/transactions']);
 

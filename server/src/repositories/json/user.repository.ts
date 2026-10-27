@@ -1,44 +1,34 @@
-import { User } from "../../model/user.model";
-import fs from "fs";
 import path from "path";
+import { User } from "../../model/user.model";
+import { readJsonArray, writeJsonArray } from "./json-file";
 
 export class UserRepository {
     private filePath: string;
 
     constructor() {
-        this.filePath = path.join(process.cwd(), "/server/data/users.json");
+        this.filePath = path.join(process.cwd(), "server", "data", "users.json");
     }
 
     createUser(user: User): User {
-        const data = fs.readFileSync(this.filePath, "utf-8");
-        const users: User[] = JSON.parse(data);      
-        
+        const users = this.getUsers();
         users.push(user);
-        fs.writeFileSync(
-            this.filePath,
-            JSON.stringify(users, null, 2)
-        );
+        writeJsonArray(this.filePath, users);
         return user;
     }
 
     getUsers(): User[] {
-        const data = fs.readFileSync(this.filePath, "utf-8");
-        const users: User[] = JSON.parse(data);
-        return users;
-    }   
+        return readJsonArray<User>(this.filePath);
+    }
 
     getUserById(id: number): User | undefined {
-        const users = this.getUsers();
-        return users.find(user => user.id === id);
+        return this.getUsers().find(user => user.id === id);
     }
 
     getUserByEmail(email: string): User | null {
-        const users = this.getUsers();
-        return users.find(user => user.email === email) || null;
-    }       
+        return this.getUsers().find(user => user.email === email) || null;
+    }
 
     getUserByTelephone(telephone: string): User | null {
-        const users = this.getUsers();
-        return users.find(user => String(user.telephone) === telephone) || null;
+        return this.getUsers().find(user => String(user.telephone) === telephone) || null;
     }
 }

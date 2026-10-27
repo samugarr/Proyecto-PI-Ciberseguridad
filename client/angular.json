@@ -60,6 +60,12 @@
         },
         "serve": {
           "builder": "@angular/build:dev-server",
+          "options": {
+            "proxyConfig": "proxy.conf.json",
+            "ssl": true,
+            "sslCert": "../server/certs/server.crt",
+            "sslKey": "../server/certs/server.key"
+          },
           "configurations": {
             "production": {
               "buildTarget": "client:build:production"

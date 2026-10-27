@@ -1,46 +1,50 @@
-import { EncryptionService } from "../services/encryption.service";
-import { LoginService } from "../services/login.service";
 import { Request, Response } from "express";
+import { LoginService } from "../services/login.service";
+import { toPublicUser } from "../mappers/user.mapper";
 
 export class LoginController {
 
     private loginService: LoginService;
-    private encryptionService: EncryptionService
 
     constructor() {
         this.loginService = new LoginService();
-        this.encryptionService = new EncryptionService();
     }
 
+    // POST /login  { email, kAuth }  ->  { user, keys }
     public async login(req: Request, res: Response) {
-        const { email, password } = req.body;
-        return this.loginService.login(email, password)
-            .then((user) => {
-                // Solo devolvemos datos públicos (nunca el hash ni la sal)
-                res.status(200).json({
-                    message: "Inicio de sesión exitoso",
-                    user: {
-                        name: user.name,
-                        email: user.email,
-                        accountNumber: user.accountNumber,
-                        telephone: user.telephone,
-                        userType: user.userType
-                    }
-                });
-            })
-            .catch((error) => {
-                res.status(401).json({ error: error.message });
+        const email = normalizeEmail(req.body?.email);
+        const kAuth = req.body?.kAuth;
+        if (!email || typeof kAuth !== "string") {
+            return res.status(400).json({ error: "Email y K_auth son obligatorios" });
+        }
+
+        try {
+            const user = await this.loginService.login(email, kAuth);
+            // El cliente necesita su clave privada cifrada para descifrarla con K_enc.
+            // El servidor la entrega pero no puede usarla.
+            return res.status(200).json({
+                user: toPublicUser(user),
+                keys: {
+                    publicKey: user.publicKey,
+                    encryptedPrivateKey: user.encryptedPrivateKey,
+                    privateKeyIv: user.privateKeyIv,
+                },
             });
+        } catch (error: any) {
+            return res.status(401).json({ error: error.message });
+        }
     }
 
     // POST /salt  { email }  ->  { salt }
     public getSalt(req: Request, res: Response) {
-        const { email } = req.body;
-        try {
-            const salt = this.loginService.getSalt(email);
-            res.status(200).json({ salt: salt });
-        } catch (error: any) {
-            res.status(404).json({ error: error.message });
+        const email = normalizeEmail(req.body?.email);
+        if (!email) {
+            return res.status(400).json({ error: "El email es obligatorio" });
         }
+        return res.status(200).json({ salt: this.loginService.getSalt(email) });
     }
+}
+
+function normalizeEmail(value: unknown): string | null {
+    return typeof value === "string" && value.trim() !== "" ? value.trim().toLowerCase() : null;
 }

@@ -1,8 +1,7 @@
-import { User, UserType } from "../model/user.model";
+import { randomInt } from "crypto";
+import { NewUserData, User, UserType } from "../model/user.model";
 import { UserRepository } from "../repositories/json/user.repository";
 import { EncryptionService } from "./encryption.service";
-import { randomInt } from "crypto";
-
 
 export class UserService {
 
@@ -26,53 +25,48 @@ export class UserService {
         return this.userRepository.getUserByTelephone(telephone);
     }
 
-    public async createUser (
-        userData: { name: string; email: string; password: string; salt: string; telephone: number }): Promise<User> {
-        
-        // comprobamos que el email introducido no está registrado
-        let users = this.getUsers();
-        const emailExists = users.some(user => user.email === userData.email);
-        if (emailExists) {
-            throw new Error("El email ya está registrado");
-        }
+    public async createUser(data: NewUserData): Promise<User> {
+        const users = this.getUsers();
+        this.ensureIsNotRegistered(users, data);
 
-        // comprobamos que el teléfono no está registrado (se usa para recibir transacciones)
-        const telephoneExists = users.some(user => String(user.telephone) === String(userData.telephone));
-        if (telephoneExists) {
-            throw new Error("El teléfono ya está registrado");
-        }
-        
+        // data.kAuth no es la contraseña: es K_auth, derivada en el navegador con Argon2id.
+        // Se vuelve a hashear para que, si roban users.json, el valor guardado no sirva para iniciar sesión.
+        const passwordHash = await this.encryptionService.hashPassword(data.kAuth);
 
-        // Usamos randomInt del módulo "crypto" de Node 
-        let digits = "";
-        for (let i = 0; i < 22; i++) {
-            digits += randomInt(0, 10).toString();
-        }
-        const accountNumber = "ES" + digits; // ES + 22 dígitos
-
-        // Algoritmo para cifrar número de cuenta y password
-        //const accountNumberEncrypted = servicioqueencripte(accountNUmber);
-
-        // userData.password ya NO es la contraseña: es K_auth, que el navegador
-        // ha calculado con Argon2id. Aun así la volvemos a hashear con Argon2
-        // aquí, para que si alguien roba users.json no pueda usar el hash
-        // directamente para iniciar sesión.
-        const passwordHash = await this.encryptionService.hashPassword(userData.password);
-
-        const id = users.length > 0 ? users[users.length - 1].id + 1 : 1;
         const newUser: User = {
-            id: id,
-            name: userData.name,
-            email: userData.email,
+            id: users.length > 0 ? users[users.length - 1].id + 1 : 1,
+            name: data.name,
+            email: data.email,
             password: passwordHash,
-            salt: userData.salt,
+            salt: data.salt,
             userType: UserType.CLIENT,
-            accountNumber: accountNumber,
-            telephone: userData.telephone,
+            accountNumber: this.generateAccountNumber(),
+            telephone: data.telephone,
+            publicKey: data.publicKey,
+            encryptedPrivateKey: data.encryptedPrivateKey,
+            privateKeyIv: data.privateKeyIv,
         };
 
         this.userRepository.createUser(newUser);
         return newUser;
     }
 
+    private ensureIsNotRegistered(users: User[], data: NewUserData): void {
+        if (users.some(user => user.email === data.email)) {
+            throw new Error("El email ya está registrado");
+        }
+        // El teléfono identifica al destinatario de las transacciones, así que tiene que ser único
+        if (users.some(user => String(user.telephone) === data.telephone)) {
+            throw new Error("El teléfono ya está registrado");
+        }
+    }
+
+    // ES + 22 dígitos generados con randomInt (CSPRNG de Node)
+    private generateAccountNumber(): string {
+        let digits = "";
+        for (let i = 0; i < 22; i++) {
+            digits += randomInt(0, 10).toString();
+        }
+        return "ES" + digits;
+    }
 }

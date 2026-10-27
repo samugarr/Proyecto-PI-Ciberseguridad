@@ -3,7 +3,8 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Router, RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
-import { deriveKeys, generateSalt } from '../../services/crypto.service';
+import { deriveKeys, encryptPrivateKey, exportPublicKey, generateRsaKeyPair, generateSalt } from '../../services/crypto.service';
+import { RegisterRequest } from '../../models/auth.model';
 
 @Component({
   selector: 'app-register',
@@ -14,7 +15,6 @@ import { deriveKeys, generateSalt } from '../../services/crypto.service';
   styleUrls: ['../login/login.page.css']
 })
 export class RegisterPage {
-
 
   name = '';
   email = '';
@@ -31,30 +31,31 @@ export class RegisterPage {
     }
 
     try {
-      // Sal aleatoria nueva para este usuario
-      const salt = generateSalt();
-
-      // Argon2id en el navegador: contraseña + sal -> K_auth y K_enc
-      const keys = await deriveKeys(this.password, salt);
-
-      // Enviamos K_auth (NO la contraseña) y la sal
-      const body = {
-        name: this.name,
-        email: this.email,
-        telephone: this.telephone,
-        password: keys.kAuth,
-        salt: salt
-      };
-
-      // POST a /api/user -> el proxy lo redirige a http://localhost:3000/user
-      const response = await firstValueFrom(this.http.post('/api/user', body));
-      console.log('Usuario registrado:', response);
+      const body = await this.buildRegisterRequest();
+      await firstValueFrom(this.http.post('/api/user', body));
       alert('Usuario registrado correctamente. Ya puedes iniciar sesión.');
       this.router.navigate(['/login']);
-
     } catch (error: any) {
       console.error('Error en el registro:', error);
       alert(error.error?.error ?? 'Error al registrar el usuario');
     }
+  }
+
+  // 1. s aleatoria  2. K_auth || K_enc = Argon2id(P, s)  3. par RSA (K_u, k_u)  4. E_{K_enc}(k_u)
+  // Al servidor solo llegan K_auth, s, K_u y k_u cifrada: nunca la contraseña ni K_enc.
+  private async buildRegisterRequest(): Promise<RegisterRequest> {
+    const salt = generateSalt();
+    const { kAuth, kEnc } = await deriveKeys(this.password, salt);
+    const keyPair = await generateRsaKeyPair();
+
+    return {
+      name: this.name,
+      email: this.email,
+      telephone: this.telephone,
+      kAuth,
+      salt,
+      publicKey: await exportPublicKey(keyPair.publicKey),
+      ...(await encryptPrivateKey(keyPair.privateKey, kEnc)),
+    };
   }
 }
