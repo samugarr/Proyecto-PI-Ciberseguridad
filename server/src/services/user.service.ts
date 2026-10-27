@@ -18,6 +18,10 @@ export class UserService {
         return this.userRepository.getUsers();
     }
 
+    public getUserById(id: number): User | null {
+        return this.userRepository.getUserById(id);
+    }
+
     public getUserByEmail(email: string): User | null {
         return this.userRepository.getUserByEmail(email);
     }

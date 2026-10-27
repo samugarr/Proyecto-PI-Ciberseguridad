@@ -27,9 +27,9 @@ export class UserRepository {
         return users;
     }   
 
-    getUserById(id: number): User | undefined {
+    getUserById(id: number): User | null {
         const users = this.getUsers();
-        return users.find(user => user.id === id);
+        return users.find(user => user.id === id) ?? null;
     }
 
     getUserByEmail(email: string): User | null {

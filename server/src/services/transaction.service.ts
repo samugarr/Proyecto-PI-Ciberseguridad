@@ -12,18 +12,16 @@ export class TransactionService {
         this.userService = new UserService();
     }
     
-    public getTransactions(): Transaction[] {
-      return this.transactionRepository.getTransactions();
-
+    public getTransactions(userId: number): Transaction[] {
         //obtener usuario logeado
-      /*  const user = this.userService.getUserByEmail("luciaaaa@gmail.com");
+        const user = this.userService.getUserById(userId);
         if (user) {
             if (user?.userType === "admin") {
                 return this.transactionRepository.getTransactions();
             } else {
                 return this.transactionRepository.getTransactionsByAccount(user?.accountNumber);
             }
-        }*/
+        }
         return [];
     }
 

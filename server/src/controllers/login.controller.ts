@@ -20,6 +20,7 @@ export class LoginController {
                 res.status(200).json({
                     message: "Inicio de sesión exitoso",
                     user: {
+                        id: user.id,
                         name: user.name,
                         email: user.email,
                         accountNumber: user.accountNumber,
