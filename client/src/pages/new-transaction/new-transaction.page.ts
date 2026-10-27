@@ -75,6 +75,7 @@ export class NewTransactionPage implements OnInit {
       this.telephoneTo = '';
       this.amount = null;
       this.description = '';
+      this.router.navigate(['/transaction-list']);
 
     } catch (error: any) {
       console.error('Error en la transacción:', error);
