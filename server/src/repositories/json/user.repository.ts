@@ -20,8 +20,8 @@ export class UserRepository {
         return readJsonArray<User>(this.filePath);
     }
 
-    getUserById(id: number): User | undefined {
-        return this.getUsers().find(user => user.id === id);
+    getUserById(id: number): User | null {
+        return this.getUsers().find(user => user.id === id) ?? null;
     }
 
     getUserByEmail(email: string): User | null {

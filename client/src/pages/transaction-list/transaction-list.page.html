@@ -55,56 +55,68 @@
 
     <!-- Tabla -->
     <div class="table-container">
-      <table>
-        <thead>
-          <tr>
-            <th>Transacción</th>
-            <th>Cuenta / IBAN</th>
-            <th>Fecha</th>
-            <th>Descripción</th>
-            <th>Cantidad</th>
-            <th class="amount-column">Importe</th>
-          </tr>
-        </thead>
+      @if (loading) {
+        <p class="loading-message">Cargando transacciones...</p>
+      } @else if (errorMessage) {
+        <p class="error-message">{{ errorMessage }}</p>
+      } @else {
+        <table>
+          <thead>
+            <tr>
+              <th>Transacción</th>
+              <th>Tipo</th>
+              <th>Cuenta / IBAN</th>
+              <th>Fecha</th>
+              <th>Descripción</th>
+              <th>Importe</th>
+            </tr>
+          </thead>
 
+          <tbody>
+            @for (transaction of this.transactions; track transaction.id) {
+              <tr>
+                <td>
+                  <div class="transaction-name">
+                    {{ transaction.id }}
+                  </div>
+                </td>
+                <td>
+                  @if (user?.accountNumber === transaction.accountTo) {
+                    <span class="badge-income">↑ Ingreso</span>
+                  } @else if (user?.accountNumber === transaction.accountFrom) {
+                    <span class="badge-payment">↓ Pago</span>
+                  } @else {
+                    <span>Desconocido</span>
+                  }
+                </td>
 
-      <tbody>
-        @for (transaction of this.transactions; track transaction.id) {
-          <tr>
-            <td>
-              <div class="transaction-name">
-                {{ transaction.id }}
-              </div>
-            </td>
+                <td class="account-cell">
+                  {{ transaction.accountTo }}
+                </td>
 
-            <td class="account-cell">
-              {{ transaction.accountTo }}
-            </td>
+                <td>
+                  {{ transaction.date | date:'dd/MM/yyyy' }}
+                </td>
 
-            <td>
-              {{ transaction.date | date:'dd/MM/yyyy' }}
-            </td>
-
-            <td>
-              {{ transaction.description }}
-            </td>
-            <td>
-              {{ transaction.amount }}
-            </td>
-
-          </tr>
-        } @empty {
-          <tr>
-            <td colspan="6" class="empty-state">
-              <span>🔎</span>
-              <p>No se han encontrado transacciones.</p>
-              <small>Prueba a cambiar los filtros de búsqueda.</small>
-            </td>
-          </tr>
-        }
-      </tbody>
-
-      </table>
+                <td>
+                  {{ transaction.description }}
+                </td>
+                <td>
+                  {{ transaction.amount }}
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="6" class="empty-state">
+                  <span>🔎</span>
+                  <p>No se han encontrado transacciones.</p>
+                  <!--<small>Prueba a cambiar los filtros de búsqueda.</small>-->
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
     </div>
 
     <footer class="table-footer">

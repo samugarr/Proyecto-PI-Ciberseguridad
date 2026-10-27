@@ -387,4 +387,24 @@ tbody tr:hover {
   .panel-header {
     padding: 20px 15px;
   }
+  .badge-income,
+  .badge-payment {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .badge-income {
+    color: #15803d;
+    background-color: #dcfce7;
+  }
+
+  .badge-payment {
+    color: #b91c1c;
+    background-color: #fee2e2;
+  }
 }
+

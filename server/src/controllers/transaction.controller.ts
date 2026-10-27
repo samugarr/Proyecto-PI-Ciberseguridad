@@ -25,8 +25,25 @@ export class TransactionController {
         }
     }
 
-    public getTransactions(req: Request, res: Response) {
-        const transactions = this.transactionService.getTransactions();
-        return res.status(200).json(transactions);
+  async getTransactions(req: Request, res: Response): Promise<void> {
+    try {
+      const userId = req.query.userId;
+      if (typeof userId !== 'string' || !userId) {
+        res.status(400).json({
+          error: 'El parámetro userId es obligatorio'
+        });
+        return;
+      }
+
+      const transactions =
+        await this.transactionService.getTransactions(parseInt(userId));
+
+      res.status(200).json(transactions);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({
+        error: 'Error al obtener las transacciones'
+      });
     }
+  }
  } 
