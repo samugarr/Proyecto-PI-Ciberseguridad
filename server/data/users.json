@@ -18,5 +18,15 @@
     "userType": "client",
     "accountNumber": "ES9474157518312880905995",
     "telephone": "619464976"
+  },
+  {
+    "id": 3,
+    "name": "lucia",
+    "email": "lucia@gmail.com",
+    "password": "$argon2id$v=19$m=65536,p=4,t=3$rX/+6VrcDm6IqfSTjxNrnw$BbIMbL8O2i0HLeCGtdfvUypYZwTlt2Sa9posihN08dc",
+    "salt": "cf8134afcd45c59d7b95d8fb9bf2887d",
+    "userType": "client",
+    "accountNumber": "ES6723550159995252719287",
+    "telephone": "627380384"
   }
 ]
