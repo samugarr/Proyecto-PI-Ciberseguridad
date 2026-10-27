@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
+import { Session } from '../../app/session';
 
 @Component({
   selector: 'app-new-transaction',
@@ -14,39 +15,29 @@ import { firstValueFrom } from 'rxjs';
 
 export class NewTransactionPage implements OnInit {
 
-  user: { name: string; email: string; accountNumber: string; telephone: string } | null = null;
   telephoneTo = '';
   amount: number | null = null;
   description = '';
   sending = false;
+  account = '';
 
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(private http: HttpClient, private router: Router, private session: Session) {}
 
   ngOnInit() {
-    // sessionStorage solo existe en el navegador (no durante el renderizado en servidor)
-    if (typeof sessionStorage === 'undefined') {
+    if (!this.session.requireLogin()) {
       return;
     }
-    // El login guarda aquí los datos públicos del usuario
-    const stored = sessionStorage.getItem('user');
-    if (!stored) {
-      this.router.navigate(['/login']);
-      return;
-    }
-    this.user = JSON.parse(stored);
+    this.account = this.session.user?.accountNumber ?? '';
   }
 
   async createTransaction() {
-    if (!this.user) {
-      return;
-    }
 
     const telephoneTo = this.telephoneTo.replace(/\s/g, '');
     if (!/^\d+$/.test(telephoneTo)) {
       alert('El teléfono solo puede contener números');
       return;
     }
-    if (telephoneTo === String(this.user.telephone)) {
+    if (telephoneTo === String(this.session.user?.telephone)) {
       alert('No puedes enviarte dinero a tu propia cuenta');
       return;
     }
@@ -63,7 +54,7 @@ export class NewTransactionPage implements OnInit {
     try {
       // POST a /api/transaction -> el proxy lo redirige a http://localhost:3000/transaction
       const body = {
-        emailFrom: this.user.email,
+        emailFrom: this.session.user?.email,
         telephoneTo: telephoneTo,
         amount: Math.round(this.amount * 100) / 100,
         description: this.description

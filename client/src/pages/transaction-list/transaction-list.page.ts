@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { DatePipe } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
+import { Session } from '../../app/session';
 
 @Component({
   selector: 'app-transaction-list',
@@ -16,41 +17,23 @@ export class TransactionListPage implements OnInit {
   loading = false;
   errorMessage = '';
     transactions: any[] = [];
-    user: { id:number, name: string; email: string; accountNumber: string; telephone: string } | null = null;
-    constructor(private http: HttpClient, private router: Router,   private cdr: ChangeDetectorRef
+    accountNumber = '';
+    constructor(private http: HttpClient, private router: Router,   private cdr: ChangeDetectorRef, public session: Session
   ) {}
 
   ngOnInit(): void {
-    if (typeof sessionStorage === 'undefined') {
+    if (!this.session.requireLogin()) {
       return;
     }
-    const stored = sessionStorage.getItem('user');
-
-    if (!stored) {
-      this.router.navigate(['/login']);
-      return;
-    }
-
-    try {
-      this.user = JSON.parse(stored);
-    } catch (error) {
-      this.router.navigate(['/login']);
-      return;
-    }
-
-    if (!this.user) {
-      return;
-    }
-
     this.loading = true;
     this.errorMessage = '';
-
     this.http.get<any[]>('/api/transactions', {
-      params: { userId: this.user.id }
+      params: { userId: String(this.session.userId) }
     }).subscribe({
       next: (transactions) => {
         this.transactions = transactions;
         this.loading = false;
+        this.accountNumber = this.session.user?.accountNumber ?? '';
         this.cdr.detectChanges();
       },
       error: (error) => {

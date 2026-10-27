@@ -12,9 +12,9 @@
       <span>📄</span> Generar informe
     </button>-->
 
-    <button class="btn-primary" routerLink="/new-transaction">
+    <!--<button class="btn-primary" routerLink="/new-transaction">
       <span>＋</span> Generar transacción
-    </button>
+    </button>-->
   </header>
 
   <!-- Listado -->
@@ -81,9 +81,9 @@
                   </div>
                 </td>
                 <td>
-                  @if (user?.accountNumber === transaction.accountTo) {
+                  @if (accountNumber === transaction.accountTo) {
                     <span class="badge-income">↑ Ingreso</span>
-                  } @else if (user?.accountNumber === transaction.accountFrom) {
+                  } @else if (accountNumber === transaction.accountFrom) {
                     <span class="badge-payment">↓ Pago</span>
                   } @else {
                     <span>Desconocido</span>

@@ -1,1 +1,12 @@
-[]
+[
+  {
+    "id": 1,
+    "accountFrom": "ES3533532489895503658055",
+    "accountTo": "ES5484220826630650399381",
+    "telephoneFrom": "627333333",
+    "telephoneTo": "627038834",
+    "description": "aaa",
+    "amount": 36,
+    "date": "2026-10-27T18:40:08.894Z"
+  }
+]

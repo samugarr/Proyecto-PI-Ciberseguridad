@@ -8,12 +8,10 @@
     <h1>Nueva transacción</h1>
     <p class="subtitle">Envía dinero a otro usuario con su teléfono</p>
 
-    @if (user) {
-      <div class="form-group">
-        <label for="accountFrom">Tu cuenta</label>
-        <input type="text" id="accountFrom" [value]="user.accountNumber" disabled>
-      </div>
-    }
+    <div class="form-group">
+      <label for="accountFrom">Tu cuenta</label>
+      <input type="text" id="accountFrom" [value]="account" disabled>
+    </div>
 
     <form (ngSubmit)="createTransaction()">
 

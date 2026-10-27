@@ -8,6 +8,7 @@ export interface PublicUser {
   telephone: string;
   accountNumber: string;
   userType: string;
+  role?: string;
 }
 
 export interface RegisterRequest extends EncryptedPrivateKey {

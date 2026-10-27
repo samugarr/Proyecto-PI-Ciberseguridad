@@ -6,6 +6,7 @@ import { firstValueFrom } from 'rxjs';
 import { decryptPrivateKey, deriveKeys, importPublicKey } from '../../services/crypto.service';
 import { KeyStoreService } from '../../services/key-store.service';
 import { LoginResponse, SaltResponse } from '../../models/auth.model';
+import { Session } from '../../app/session';
 
 @Component({
   selector: 'app-login',
@@ -19,7 +20,7 @@ export class LoginPage {
   email = '';
   password = '';
 
-  constructor(private http: HttpClient, private router: Router, private keyStore: KeyStoreService) {}
+  constructor(private http: HttpClient, private router: Router , private session: Session, private keyStore: KeyStoreService) {}
 
   async login() {
     try {
@@ -39,6 +40,7 @@ export class LoginPage {
 
       // Datos públicos del usuario para las demás páginas (sin claves)
       sessionStorage.setItem('user', JSON.stringify(response.user));
+      this.session.setUser(response.user);
       this.router.navigate(['/transactions']);
 
     } catch (error: any) {
