@@ -4,4 +4,5 @@ import { UserType } from "./user.model";
 export interface AuthContext {
     userId: number;
     role: UserType;
+    authTime: number;   // segundos Unix del login original; se conserva al renovar el token
 }

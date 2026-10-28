@@ -13,7 +13,7 @@ export class LoginController {
         this.tokenService = new TokenService();
     }
 
-    // POST /login  { email, kAuth }  ->  { user, token, keys }
+    // POST /login  { email, kAuth }  ->  { user, token, keys, account }
     public async login(req: Request, res: Response) {
         const email = normalizeEmail(req.body?.email);
         const kAuth = req.body?.kAuth;
@@ -33,7 +33,19 @@ export class LoginController {
                     encryptedPrivateKey: user.encryptedPrivateKey,
                     privateKeyIv: user.privateKeyIv,
                 },
+                // Cuenta cifrada: el cliente la descifra con k_u
+                account: user.account,
             });
+        } catch (error: any) {
+            return res.status(401).json({ error: error.message });
+        }
+    }
+
+    // POST /token/refresh  ->  { token }. Ruta protegida con requireAuth: solo renueva un token válido.
+    public refreshToken(req: Request, res: Response) {
+        try {
+            const user = this.loginService.getActiveUser(req.auth!.userId);
+            return res.status(200).json({ token: this.tokenService.refreshToken(user, req.auth!) });
         } catch (error: any) {
             return res.status(401).json({ error: error.message });
         }

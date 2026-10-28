@@ -3,7 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Router, RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
-import { decryptPrivateKey, deriveKeys, importPublicKey } from '../../services/crypto.service';
+import { decryptHybrid, decryptPrivateKey, deriveKeys, importPublicKey } from '../../services/crypto.service';
 import { SessionService } from '../../services/session.service';
 import { LoginResponse, SaltResponse } from '../../models/auth.model';
 
@@ -36,7 +36,10 @@ export class LoginPage {
       const privateKey = await decryptPrivateKey(response.keys, kEnc);
       const publicKey = await importPublicKey(response.keys.publicKey);
 
-      this.session.start(response.user, response.token, { kEnc, privateKey, publicKey });
+      // 4. Con k_u se descifra el número de cuenta, que el servidor guarda cifrado
+      const accountNumber = await decryptHybrid(response.account, privateKey);
+
+      this.session.start({ ...response.user, accountNumber }, response.token, { kEnc, privateKey, publicKey });
       this.router.navigate(['/transactions']);
 
     } catch (error: any) {

@@ -12,7 +12,6 @@ import { SessionService } from '../services/session.service';
         <strong>🔐 ConsulTxProt</strong>
         <a routerLink="/transactions" routerLinkActive="on">Transacciones</a>
         <a routerLink="/new-transaction" routerLinkActive="on">Nueva</a>
-        <!--<a routerLink="/documents" routerLinkActive="on">Documentos</a>-->
         @if (s.hasRole('admin','operator')) { <a routerLink="/admin" routerLinkActive="on">Administración</a> }
         <span class="spacer"></span>
         <span class="who">{{ s.user!.name }} · {{ s.user!.userType }}</span>

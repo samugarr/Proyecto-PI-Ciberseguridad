@@ -1,16 +1,5 @@
-// Conversiones entre bytes y texto. Hex para sales y K_auth, base64 para claves e IV.
-
-export function bytesToHex(bytes: Uint8Array): string {
-  return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
-}
-
-export function hexToBytes(hex: string): Uint8Array<ArrayBuffer> {
-  const bytes = new Uint8Array(hex.length / 2);
-  for (let i = 0; i < bytes.length; i++) {
-    bytes[i] = parseInt(hex.substring(i * 2, i * 2 + 2), 16);
-  }
-  return bytes;
-}
+// Conversiones entre bytes y texto. Todos los binarios que viajan en JSON (sal, K_auth, claves,
+// IV y datos cifrados) van en base64; los tokens JWT usan base64url.
 
 export function bytesToBase64(bytes: ArrayBuffer | Uint8Array): string {
   const view = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
@@ -28,4 +17,10 @@ export function base64ToBytes(base64: string): Uint8Array<ArrayBuffer> {
     bytes[i] = binary.charCodeAt(i);
   }
   return bytes;
+}
+
+export function base64UrlToText(base64Url: string): string {
+  const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+  const padded = base64 + '='.repeat((4 - base64.length % 4) % 4);
+  return new TextDecoder().decode(base64ToBytes(padded));
 }

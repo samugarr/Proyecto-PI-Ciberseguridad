@@ -159,50 +159,6 @@
   font-size: 19px;
 }
 
-.filters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  padding: 0 26px 22px;
-}
-
-.search-box {
-  display: flex;
-  flex: 1 1 280px;
-  align-items: center;
-  gap: 10px;
-  padding: 0 13px;
-  border: 1px solid #dfe5ef;
-  border-radius: 9px;
-  color: #64748b;
-}
-
-.search-box > span {
-  font-size: 25px;
-}
-
-.search-box input {
-  width: 100%;
-  min-width: 0;
-  padding: 12px 0;
-  border: none;
-  outline: none;
-  color: #334155;
-  font-size: 13px;
-  background: transparent;
-}
-
-.filters select {
-  min-width: 160px;
-  padding: 12px;
-  border: 1px solid #dfe5ef;
-  border-radius: 9px;
-  background: white;
-  color: #475569;
-  font-size: 13px;
-  outline-color: #2948a5;
-}
-
 .table-container {
   width: 100%;
   overflow-x: auto;
@@ -375,36 +331,27 @@ tbody tr:hover {
     font-size: 19px;
   }
 
-  .filters {
-    padding: 0 15px 18px;
-  }
-
-  .filters select {
-    flex: 1 1 100%;
-    width: 100%;
-  }
-
   .panel-header {
     padding: 20px 15px;
   }
-  .badge-income,
-  .badge-payment {
-    display: inline-block;
-    padding: 5px 10px;
-    border-radius: 12px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    white-space: nowrap;
-  }
-
-  .badge-income {
-    color: #15803d;
-    background-color: #dcfce7;
-  }
-
-  .badge-payment {
-    color: #b91c1c;
-    background-color: #fee2e2;
-  }
 }
 
+.badge-income,
+.badge-payment {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.badge-income {
+  color: #15803d;
+  background-color: #dcfce7;
+}
+
+.badge-payment {
+  color: #b91c1c;
+  background-color: #fee2e2;
+}

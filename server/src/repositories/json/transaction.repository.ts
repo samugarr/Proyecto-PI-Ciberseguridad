@@ -16,14 +16,13 @@ export class TransactionRepository {
         return transaction;
     }
 
-    // Lista todas las transacciones
     getTransactions(): Transaction[] {
         return readJsonArray<Transaction>(this.filePath);
     }
 
-    // Lista transacciones filtrando por la cuenta del usuario
-    getTransactionsByAccount(accountNumber: string): Transaction[] {
+    // Transacciones en las que el usuario es emisor o receptor
+    getTransactionsByUser(userId: number): Transaction[] {
         return this.getTransactions().filter(transaction =>
-            transaction.accountFrom === accountNumber || transaction.accountTo === accountNumber);
+            transaction.senderId === userId || transaction.receiverId === userId);
     }
 }

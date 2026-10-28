@@ -11,6 +11,10 @@ const TOKEN_LIFETIME = "15m";
 const TOKEN_ISSUER = "pi-server";
 const KEY_PAIR_NAME = "jwt";
 
+// Mientras la sesión está abierta el cliente renueva el token antes de que caduque, pero nunca
+// más allá de este tiempo desde el login. Así un token robado no se puede renovar para siempre.
+const MAX_SESSION_SECONDS = 8 * 60 * 60;
+
 export class TokenService {
 
     private privateKey: string;
@@ -22,13 +26,21 @@ export class TokenService {
         this.publicKey = keyPair.publicKey;
     }
 
-    public issueToken(user: User): string {
-        return jwt.sign({ role: user.userType }, this.privateKey, {
+    // authTime se pasa al renovar para conservar la hora del login original
+    public issueToken(user: User, authTime: number = nowInSeconds()): string {
+        return jwt.sign({ role: user.userType, auth_time: authTime }, this.privateKey, {
             algorithm: TOKEN_ALGORITHM,
             expiresIn: TOKEN_LIFETIME,
             issuer: TOKEN_ISSUER,
             subject: String(user.id),
         });
+    }
+
+    public refreshToken(user: User, auth: AuthContext): string {
+        if (nowInSeconds() - auth.authTime > MAX_SESSION_SECONDS) {
+            throw new Error("La sesión ha superado su duración máxima");
+        }
+        return this.issueToken(user, auth.authTime);
     }
 
     // Lanza un error si la firma no es válida, el token ha caducado o no lo emitió este servidor.
@@ -38,9 +50,17 @@ export class TokenService {
             algorithms: [TOKEN_ALGORITHM],
             issuer: TOKEN_ISSUER,
         });
-        if (typeof payload === "string" || !payload.sub) {
-            throw new Error("Token sin identificador de usuario");
+        if (typeof payload === "string" || !payload.sub || typeof payload["auth_time"] !== "number") {
+            throw new Error("Token con formato no válido");
         }
-        return { userId: Number(payload.sub), role: payload["role"] as UserType };
+        return {
+            userId: Number(payload.sub),
+            role: payload["role"] as UserType,
+            authTime: payload["auth_time"],
+        };
     }
+}
+
+function nowInSeconds(): number {
+    return Math.floor(Date.now() / 1000);
 }

@@ -1,7 +1,8 @@
 // Criptografía del cliente. Todo lo que depende de la contraseña ocurre aquí, en el navegador:
-// el servidor solo recibe K_auth, la sal, la clave pública y la clave privada ya cifrada.
+// el servidor solo recibe K_auth, la sal, la clave pública, la clave privada ya cifrada y los
+// datos cifrados con cifrado híbrido.
 import { argon2id } from 'hash-wasm';
-import { base64ToBytes, bytesToBase64, bytesToHex, hexToBytes } from './encoding';
+import { base64ToBytes, bytesToBase64 } from './encoding';
 
 const ARGON2_PARAMS = {
   parallelism: 1,
@@ -21,8 +22,15 @@ const RSA_OAEP_PARAMS: RsaHashedKeyGenParams = {
 };
 
 export interface DerivedKeys {
-  kAuth: string;       // 32 bytes en hex. Se envía al servidor para registrarse e iniciar sesión
+  kAuth: string;       // 32 bytes en base64. Se envía al servidor para registrarse e iniciar sesión
   kEnc: CryptoKey;     // AES-256-GCM, no exportable. Nunca sale del navegador
+}
+
+// Cifrado híbrido para un usuario: m cifrado con una clave AES aleatoria k, y k cifrada con K_u
+export interface HybridCiphertext {
+  ciphertext: string;   // E^{AES-256-GCM}_k(m), base64 (incluye la etiqueta de autenticación)
+  iv: string;           // IV de 12 bytes, base64
+  wrappedKey: string;   // E^{RSA-OAEP}_{K_u}(k), base64
 }
 
 export interface EncryptedPrivateKey {
@@ -30,16 +38,17 @@ export interface EncryptedPrivateKey {
   privateKeyIv: string;          // IV de 12 bytes, base64
 }
 
+// s: 16 bytes aleatorios en base64
 export function generateSalt(): string {
-  return bytesToHex(crypto.getRandomValues(new Uint8Array(SALT_BYTES)));
+  return bytesToBase64(crypto.getRandomValues(new Uint8Array(SALT_BYTES)));
 }
 
 // Argon2id(contraseña, sal) = 64 bytes, que se dividen en dos claves independientes:
 // K_auth = bytes 0-31 para autenticarse y K_enc = bytes 32-63 para cifrar la clave privada.
-export async function deriveKeys(password: string, saltHex: string): Promise<DerivedKeys> {
+export async function deriveKeys(password: string, salt: string): Promise<DerivedKeys> {
   const result = await argon2id({
     password,
-    salt: hexToBytes(saltHex),
+    salt: base64ToBytes(salt),
     ...ARGON2_PARAMS,
     outputType: 'binary',
   });
@@ -47,7 +56,7 @@ export async function deriveKeys(password: string, saltHex: string): Promise<Der
   const kEnc = await crypto.subtle.importKey(
     'raw', new Uint8Array(result.slice(32, 64)), { name: 'AES-GCM' }, false, ['wrapKey', 'unwrapKey']);
 
-  return { kAuth: bytesToHex(result.slice(0, 32)), kEnc };
+  return { kAuth: bytesToBase64(result.slice(0, 32)), kEnc };
 }
 
 // Par de claves del usuario: K_u (pública) y k_u (privada). Se genera exportable
@@ -85,4 +94,25 @@ export function decryptPrivateKey(encrypted: EncryptedPrivateKey, kEnc: CryptoKe
     false,
     ['decrypt', 'unwrapKey'],
   );
+}
+
+// Cifra un texto para un usuario. Cada llamada usa una clave AES-256-GCM nueva y aleatoria k,
+// que solo existe en memoria: se cifra con la clave pública K_u y se descarta.
+export async function encryptHybrid(plaintext: string, publicKey: CryptoKey): Promise<HybridCiphertext> {
+  const key = await crypto.subtle.generateKey({ name: 'AES-GCM', length: 256 }, true, ['encrypt']);
+  const iv = crypto.getRandomValues(new Uint8Array(AES_GCM_IV_BYTES));
+  const ciphertext = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, new TextEncoder().encode(plaintext));
+  const wrappedKey = await crypto.subtle.wrapKey('raw', key, publicKey, { name: 'RSA-OAEP' });
+  return { ciphertext: bytesToBase64(ciphertext), iv: bytesToBase64(iv), wrappedKey: bytesToBase64(wrappedKey) };
+}
+
+// Primero D^{RSA-OAEP}_{k_u}(wrappedKey) = k y después D^{AES-256-GCM}_k(ciphertext) = m.
+// Si el servidor ha modificado cualquiera de las partes, falla con OperationError.
+export async function decryptHybrid(encrypted: HybridCiphertext, privateKey: CryptoKey): Promise<string> {
+  const key = await crypto.subtle.unwrapKey(
+    'raw', base64ToBytes(encrypted.wrappedKey), privateKey, { name: 'RSA-OAEP' },
+    { name: 'AES-GCM' }, false, ['decrypt']);
+  const plaintext = await crypto.subtle.decrypt(
+    { name: 'AES-GCM', iv: base64ToBytes(encrypted.iv) }, key, base64ToBytes(encrypted.ciphertext));
+  return new TextDecoder().decode(plaintext);
 }

@@ -32,6 +32,15 @@ export class LoginService {
         return user;
     }
 
+    // Usuario de un token que se quiere renovar. Si se ha borrado desde el login, no se renueva.
+    public getActiveUser(userId: number): User {
+        const user = this.userService.getUserById(userId);
+        if (!user) {
+            throw new Error("Sesión no válida");
+        }
+        return user;
+    }
+
     // Devuelve la sal del usuario. Si el email no existe devuelve una sal falsa pero estable,
     // HMAC-SHA256(secreto, email), indistinguible de una real para quien pregunta.
     public getSalt(email: string): string {
@@ -39,6 +48,6 @@ export class LoginService {
         if (user) {
             return user.salt;
         }
-        return this.encryptionService.hmacHex(this.fakeSaltKey, email, SALT_BYTES);
+        return this.encryptionService.hmacBase64(this.fakeSaltKey, email, SALT_BYTES);
     }
 }

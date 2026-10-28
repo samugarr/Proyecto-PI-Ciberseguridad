@@ -1,23 +1,12 @@
-
 <div class="transactions-page">
 
-  <!-- Cabecera -->
   <header class="page-header">
     <div>
       <h1>Transacciones</h1>
       <p>Consulta y gestiona todos los movimientos de tus cuentas.</p>
     </div>
-
-    <!--<button class="btn-primary" (click)="generateReport()">
-      <span>📄</span> Generar informe
-    </button>-->
-
-    <!--<button class="btn-primary" routerLink="/new-transaction">
-      <span>＋</span> Generar transacción
-    </button>-->
   </header>
 
-  <!-- Listado -->
   <section class="transactions-panel">
 
     <div class="panel-header">
@@ -27,33 +16,6 @@
       </div>
     </div>
 
-    <!-- Buscador y filtros -->
-    <div class="filters">
-      <!--<div class="search-box">
-        <span>⌕</span>
-        <input
-          type="text"
-          placeholder="Buscar por concepto o cuenta..."
-          [(ngModel)]="searchTerm"
-        />
-      </div>-->
-
-      <!--<select [(ngModel)]="selectedType">
-        <option value="">Todos los tipos</option>
-        <option value="Ingreso">Ingresos</option>
-        <option value="Gasto">Gastos</option>
-        <option value="Transferencia">Transferencias</option>
-      </select>-->
-
-      <!--<select [(ngModel)]="selectedStatus">
-        <option value="">Todos los estados</option>
-        <option value="Completada">Completadas</option>
-        <option value="Pendiente">Pendientes</option>
-        <option value="Rechazada">Rechazadas</option>
-      </select>-->
-    </div>
-
-    <!-- Tabla -->
     <div class="table-container">
       @if (loading) {
         <p class="loading-message">Cargando transacciones...</p>
@@ -65,7 +27,8 @@
             <tr>
               <th>Transacción</th>
               <th>Tipo</th>
-              <th>Cuenta / IBAN</th>
+              <th>Origen / destino</th>
+              <th>Cuenta</th>
               <th>Fecha</th>
               <th>Descripción</th>
               <th>Importe</th>
@@ -81,18 +44,38 @@
                   </div>
                 </td>
                 <td>
-                  @if (accountNumber === transaction.accountTo) {
+                  @if (isIncoming(transaction)) {
                     <span class="badge-income">↑ Ingreso</span>
-                  } @else if (accountNumber === transaction.accountFrom) {
+                  } @else if (isOutgoing(transaction)) {
                     <span class="badge-payment">↓ Pago</span>
                   } @else {
-                    <span>Desconocido</span>
+                    <span>Entre otros usuarios</span>
                   }
                 </td>
 
-                <td class="account-cell">
-                  {{ transaction.accountTo }}
-                </td>
+                @if (counterpart(transaction); as party) {
+                  <td>
+                    <div class="transaction-name">
+                      <div>
+                        <strong>{{ party.name }}</strong>
+                        <small>{{ party.telephone }}</small>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="account-cell">{{ party.maskedAccount }}</td>
+                } @else {
+                  <td>
+                    <div class="transaction-name">
+                      <div>
+                        <strong>{{ transaction.sender.name }} → {{ transaction.receiver.name }}</strong>
+                        <small>{{ transaction.sender.telephone }} → {{ transaction.receiver.telephone }}</small>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="account-cell">
+                    {{ transaction.sender.maskedAccount }}<br>{{ transaction.receiver.maskedAccount }}
+                  </td>
+                }
 
                 <td>
                   {{ transaction.date | date:'dd/MM/yyyy' }}
@@ -107,10 +90,9 @@
               </tr>
             } @empty {
               <tr>
-                <td colspan="6" class="empty-state">
+                <td colspan="7" class="empty-state">
                   <span>🔎</span>
                   <p>No se han encontrado transacciones.</p>
-                  <!--<small>Prueba a cambiar los filtros de búsqueda.</small>-->
                 </td>
               </tr>
             }

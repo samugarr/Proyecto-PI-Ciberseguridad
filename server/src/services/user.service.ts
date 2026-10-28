@@ -1,4 +1,3 @@
-import { randomInt } from "crypto";
 import { NewUserData, User, UserType } from "../model/user.model";
 import { UserRepository } from "../repositories/json/user.repository";
 import { EncryptionService } from "./encryption.service";
@@ -44,7 +43,8 @@ export class UserService {
             password: passwordHash,
             salt: data.salt,
             userType: UserType.CLIENT,
-            accountNumber: this.generateAccountNumber(),
+            account: data.account,
+            accountLast4: data.accountLast4,
             telephone: data.telephone,
             publicKey: data.publicKey,
             encryptedPrivateKey: data.encryptedPrivateKey,
@@ -63,14 +63,5 @@ export class UserService {
         if (users.some(user => String(user.telephone) === data.telephone)) {
             throw new Error("El teléfono ya está registrado");
         }
-    }
-
-    // ES + 22 dígitos generados con randomInt (CSPRNG de Node)
-    private generateAccountNumber(): string {
-        let digits = "";
-        for (let i = 0; i < 22; i++) {
-            digits += randomInt(0, 10).toString();
-        }
-        return "ES" + digits;
     }
 }

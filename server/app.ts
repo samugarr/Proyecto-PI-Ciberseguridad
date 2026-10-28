@@ -31,6 +31,7 @@ app.post("/transaction", requireAuth, transactionController.createTransaction.bi
 const loginController = new LoginController();
 app.post("/login", loginController.login.bind(loginController));
 app.post("/salt", loginController.getSalt.bind(loginController));
+app.post("/token/refresh", requireAuth, loginController.refreshToken.bind(loginController));
 
 const options: https.ServerOptions = {
     key: fs.readFileSync(path.resolve('./server/certs/server.key')),

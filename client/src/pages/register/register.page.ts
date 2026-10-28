@@ -3,7 +3,9 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Router, RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
-import { deriveKeys, encryptPrivateKey, exportPublicKey, generateRsaKeyPair, generateSalt } from '../../services/crypto.service';
+import { deriveKeys, encryptHybrid, encryptPrivateKey, exportPublicKey, generateRsaKeyPair, generateSalt } from '../../services/crypto.service';
+import { generateAccountNumber, lastFourDigits } from '../../services/account-number';
+import { checkPassword } from '../../services/password-policy';
 import { RegisterRequest } from '../../models/auth.model';
 
 @Component({
@@ -25,6 +27,12 @@ export class RegisterPage {
   constructor(private http: HttpClient, private router: Router) {}
 
   async register() {
+    const emailUser = this.email.split('@')[0];
+    const passwordError = checkPassword(this.password, [this.name, emailUser, this.telephone]);
+    if (passwordError) {
+      alert(passwordError);
+      return;
+    }
     if (this.password !== this.confirmPassword) {
       alert('Las contraseñas no coinciden');
       return;
@@ -42,11 +50,13 @@ export class RegisterPage {
   }
 
   // 1. s aleatoria  2. K_auth || K_enc = Argon2id(P, s)  3. par RSA (K_u, k_u)  4. E_{K_enc}(k_u)
-  // Al servidor solo llegan K_auth, s, K_u y k_u cifrada: nunca la contraseña ni K_enc.
+  // 5. nº de cuenta aleatorio, cifrado con una clave AES k_acc que a su vez se cifra con K_u
+  // Al servidor no llegan nunca la contraseña, K_enc ni el número de cuenta.
   private async buildRegisterRequest(): Promise<RegisterRequest> {
     const salt = generateSalt();
     const { kAuth, kEnc } = await deriveKeys(this.password, salt);
     const keyPair = await generateRsaKeyPair();
+    const accountNumber = generateAccountNumber();
 
     return {
       name: this.name,
@@ -56,6 +66,8 @@ export class RegisterPage {
       salt,
       publicKey: await exportPublicKey(keyPair.publicKey),
       ...(await encryptPrivateKey(keyPair.privateKey, kEnc)),
+      account: await encryptHybrid(accountNumber, keyPair.publicKey),
+      accountLast4: lastFourDigits(accountNumber),
     };
   }
 }
