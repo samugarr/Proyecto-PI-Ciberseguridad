@@ -8,7 +8,6 @@ export interface PublicUser {
   telephone: string;
   accountNumber: string;
   userType: string;
-  role?: string;
 }
 
 export interface RegisterRequest extends EncryptedPrivateKey {
@@ -26,5 +25,6 @@ export interface SaltResponse {
 
 export interface LoginResponse {
   user: PublicUser;
+  token: string;    // JWT RS256 firmado por el servidor, caduca en 15 minutos
   keys: EncryptedPrivateKey & { publicKey: string };
 }

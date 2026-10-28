@@ -3,6 +3,7 @@ import { LoginPage } from '../pages/login/login.page';
 import { RegisterPage } from '../pages/register/register.page';
 import { TransactionListPage } from '../pages/transaction-list/transaction-list.page';
 import { NewTransactionPage } from '../pages/new-transaction/new-transaction.page';
+import { authGuard } from '../guards/auth.guard';
 
 export const routes: Routes = [
   {
@@ -20,10 +21,12 @@ export const routes: Routes = [
   },
   {
     path: 'transactions',
-    component: TransactionListPage
+    component: TransactionListPage,
+    canActivate: [authGuard]
   },
   {
     path: 'new-transaction',
-    component: NewTransactionPage
+    component: NewTransactionPage,
+    canActivate: [authGuard]
   }
 ];

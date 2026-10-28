@@ -1,16 +1,19 @@
 import { Request, Response } from "express";
 import { LoginService } from "../services/login.service";
+import { TokenService } from "../services/token.service";
 import { toPublicUser } from "../mappers/user.mapper";
 
 export class LoginController {
 
     private loginService: LoginService;
+    private tokenService: TokenService;
 
     constructor() {
         this.loginService = new LoginService();
+        this.tokenService = new TokenService();
     }
 
-    // POST /login  { email, kAuth }  ->  { user, keys }
+    // POST /login  { email, kAuth }  ->  { user, token, keys }
     public async login(req: Request, res: Response) {
         const email = normalizeEmail(req.body?.email);
         const kAuth = req.body?.kAuth;
@@ -24,6 +27,7 @@ export class LoginController {
             // El servidor la entrega pero no puede usarla.
             return res.status(200).json({
                 user: toPublicUser(user),
+                token: this.tokenService.issueToken(user),
                 keys: {
                     publicKey: user.publicKey,
                     encryptedPrivateKey: user.encryptedPrivateKey,

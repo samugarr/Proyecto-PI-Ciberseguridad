@@ -3,6 +3,7 @@ import cors from "cors";
 import { UserController } from "./src/controllers/user.controller";
 import { TransactionController } from "./src/controllers/transaction.controller";
 import { LoginController } from "./src/controllers/login.controller";
+import { requireAuth } from "./src/middlewares/auth.middleware";
 import https from 'node:https';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -23,8 +24,8 @@ app.post("/user", userController.registerUser.bind(userController));
 
 
 const transactionController = new TransactionController();
-app.get("/transactions", transactionController.getTransactions.bind(transactionController));
-app.post("/transaction", transactionController.createTransaction.bind(transactionController));
+app.get("/transactions", requireAuth, transactionController.getTransactions.bind(transactionController));
+app.post("/transaction", requireAuth, transactionController.createTransaction.bind(transactionController));
 
 
 const loginController = new LoginController();

@@ -2,8 +2,7 @@ import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { DatePipe } from '@angular/common';
-import { Router } from '@angular/router';
-import { Session } from '../../app/session';
+import { SessionService } from '../../services/session.service';
 
 @Component({
   selector: 'app-transaction-list',
@@ -19,21 +18,15 @@ export class TransactionListPage implements OnInit {
   accountNumber = '';
   constructor(
     private http: HttpClient,
-    private router: Router,
     private cdr: ChangeDetectorRef,
-    public session: Session,
+    public session: SessionService,
   ) {}
 
   ngOnInit(): void {
-    if (!this.session.requireLogin()) {
-      return;
-    }
     this.loading = true;
     this.errorMessage = '';
     this.http
-      .get<any[]>('/api/transactions', {
-        params: { userId: String(this.session.userId) },
-      })
+      .get<any[]>('/api/transactions')
       .subscribe({
         next: (transactions) => {
           this.transactions = transactions;

@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { Session } from './session';
+import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { SessionService } from '../services/session.service';
 
 @Component({
   selector: 'app-root',
@@ -15,16 +15,12 @@ import { Session } from './session';
         <!--<a routerLink="/documents" routerLinkActive="on">Documentos</a>-->
         @if (s.hasRole('admin','operator')) { <a routerLink="/admin" routerLinkActive="on">Administración</a> }
         <span class="spacer"></span>
-        <span class="who">{{ s.user!.name }} · {{ s.user!.role }}</span>
-        <button class="linklike" (click)="logout()">Salir</button>
+        <span class="who">{{ s.user!.name }} · {{ s.user!.userType }}</span>
+        <button class="linklike" (click)="s.logout()">Salir</button>
       </nav>
     }
     <router-outlet />`,
 })
 export class App {
-  constructor(public s: Session, private router: Router) {}
-  async logout() {
-    try { await this.s.logout(); } catch {}
-    this.router.navigate(['/login']);
-  }
+  constructor(public s: SessionService) {}
 }

@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
-import { Session } from '../../app/session';
+import { SessionService } from '../../services/session.service';
 
 @Component({
   selector: 'app-new-transaction',
@@ -21,12 +21,9 @@ export class NewTransactionPage implements OnInit {
   sending = false;
   account = '';
 
-  constructor(private http: HttpClient, private router: Router, private session: Session) {}
+  constructor(private http: HttpClient, private router: Router, private session: SessionService) {}
 
   ngOnInit() {
-    if (!this.session.requireLogin()) {
-      return;
-    }
     this.account = this.session.user?.accountNumber ?? '';
   }
 
@@ -52,9 +49,8 @@ export class NewTransactionPage implements OnInit {
 
     this.sending = true;
     try {
-      // POST a /api/transaction -> el proxy lo redirige a http://localhost:3000/transaction
+      // El emisor no se envía: el servidor lo saca del token de sesión
       const body = {
-        emailFrom: this.session.user?.email,
         telephoneTo: telephoneTo,
         amount: Math.round(this.amount * 100) / 100,
         description: this.description
