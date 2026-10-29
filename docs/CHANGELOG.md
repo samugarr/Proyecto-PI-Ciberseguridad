@@ -2,6 +2,44 @@
 
 Entradas más recientes arriba. El detalle de la sesión del 27/10 está en `cambios-sesion-27-10.md`.
 
+## 2026-10-29 · Pulido del diseño de Wizum
+
+Qué: solo HTML y CSS; la funcionalidad no cambia.
+- Login y registro: el panel izquierdo deja de mostrar textos sobre seguridad. Ahora es un cartel de la marca: logo grande, una frase para el usuario y un ejemplo de movimiento con la sombra desplazada del logo, sobre una trama de puntos suave.
+- El botón principal tiene una sombra lima desplazada, como las capas del logo, y al pulsarlo se hunde sobre ella.
+- La línea bajo la página activa de la cabecera se dibuja con una transición.
+- Los recuadros usan sombras suaves en lugar de borde gris.
+- Los efectos al pasar el ratón solo se aplican en dispositivos con ratón.
+- Color de selección de texto con el lima de la marca.
+- Las transiciones se desactivan si el sistema tiene activado "reducir movimiento".
+
+Ficheros: `client/src/styles.scss`, `pages/login` (html, css), `pages/register/register.page.html`, `pages/transaction-list/transaction-list.page.css`.
+
+Rompe compatibilidad: no.
+
+## 2026-10-29 · Nuevo diseño: Wizum
+
+Qué: la aplicación pasa a llamarse Wizum y cambia todo su aspecto. Solo se han tocado HTML y CSS (en `app.ts`, solo la plantilla); la funcionalidad es la misma.
+
+Diseño:
+- Pensado para escritorio: ancho mínimo de 960 px y contenido en una columna de 1120 px.
+- Login y registro a dos columnas: marca a la izquierda, formulario a la derecha.
+- Cabecera con el logo, navegación (Movimientos y Enviar dinero) y el usuario con su tipo.
+- Listado en forma de tabla: fecha y hora, concepto, otra parte, cuenta enmascarada, tipo e importe con signo.
+- Colores sacados del logo: el lima solo en la marca y el verde oscuro para las acciones.
+- Fuentes de Google Fonts: Schibsted Grotesk (títulos), Instrument Sans (texto) e IBM Plex Mono (cuentas). Sin conexión se usa la fuente del sistema.
+- Se han quitado los emojis de las páginas.
+
+Ficheros:
+- `client/src/index.html` (título, idioma, fuentes e icono) y `client/src/styles.scss` (colores, botones, campos y cabecera compartidos).
+- `client/src/app/app.ts` (solo la plantilla).
+- HTML y CSS de `pages/login`, `pages/register`, `pages/new-transaction` y `pages/transaction-list`.
+- `client/public/`: `wizum-logo.png`, `wizum-icon.png` y `favicon.ico` (la W del logo).
+
+Rompe compatibilidad: no. Recargar Angular con Ctrl+F5 para que el navegador no use el icono antiguo en caché.
+
+Pendiente: los importes se muestran sin formato (`24.5 €`). Para mostrarlos como `24,50 €` hace falta importar `DecimalPipe` en `transaction-list.page.ts`.
+
 ## 2026-10-28 · Número de cuenta cifrado (el servidor no lo conoce)
 
 Qué:

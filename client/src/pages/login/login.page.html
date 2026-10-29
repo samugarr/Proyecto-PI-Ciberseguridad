@@ -1,55 +1,38 @@
-<div class="login-page">
-  <div class="login-card">
+<main class="auth">
+  <section class="auth-brand">
+    <img class="auth-brand__logo" src="wizum-logo.png" alt="Wizum" width="460" height="151">
+    <p class="auth-brand__lead">Envía dinero a cualquiera con su número de teléfono.</p>
 
-    <div class="login-icon">
-      🔐
+    <div class="ticket" aria-hidden="true">
+      <span class="ticket__label">Ingreso</span>
+      <span class="ticket__amount">+24,50 €</span>
+      <span class="ticket__from">De Lucía</span>
+      <span class="ticket__concept">Cena del viernes</span>
     </div>
+  </section>
 
-    <h1>¡Bienvenida!</h1>
-    <p class="subtitle">Inicia sesión en tu cuenta</p>
+  <section class="auth-panel">
+    <div class="auth-form">
+      <h1>Inicia sesión</h1>
+      <p class="auth-form__sub">Accede a tus movimientos.</p>
 
-    <form (ngSubmit)="login()">
+      <form class="auth-form__fields" (ngSubmit)="login()">
+        <div class="field">
+          <label for="email">Correo electrónico</label>
+          <input type="email" id="email" name="email" [(ngModel)]="email"
+                 placeholder="nombre@ejemplo.com" autocomplete="email" required>
+        </div>
 
-      <div class="form-group">
-        <label for="email">Correo electrónico</label>
-        <input
-          type="email"
-          id="email"
-          name="email"
-          [(ngModel)]="email"
-          placeholder="nombre@ejemplo.com"
-          autocomplete="email"
-          required
-        >
-      </div>
+        <div class="field">
+          <label for="password">Contraseña</label>
+          <input type="password" id="password" name="password" [(ngModel)]="password"
+                 autocomplete="current-password" required>
+        </div>
 
-      <div class="form-group">
-        <label for="password">Contraseña</label>
-        <input
-          type="password"
-          id="password"
-          name="password"
-          [(ngModel)]="password"
-          placeholder="Introduce tu contraseña"
-          autocomplete="current-password"
-          required
-        >
-      </div>
+        <button type="submit" class="btn btn-primary btn-block">Iniciar sesión</button>
+      </form>
 
-      <button type="submit">
-        Iniciar sesión
-        <span>→</span>
-      </button>
-
-    </form>
-
-    <p class="footer-text">
-      ¿No tienes cuenta? <a routerLink="/register">Regístrate</a>
-    </p>
-
-    <p class="footer-text">
-      Sistema de gestión de transacciones
-    </p>
-
-  </div>
-</div>
+      <p class="auth-form__switch">¿Aún no tienes cuenta? <a routerLink="/register">Crea una</a></p>
+    </div>
+  </section>
+</main>

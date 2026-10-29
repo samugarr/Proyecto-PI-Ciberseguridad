@@ -1,0 +1,20 @@
+sequenceDiagram
+    autonumber
+    participant N as Navegador de u
+    participant S as Servidor S
+    N->>S: POST /salt {email}
+    S-->>N: {s}<br/>si el email no existe: HMAC-SHA256(secreto, email)
+    Note over N: R = Argon2id(p, s) → K_auth, K_enc
+    N->>S: POST /login {email, K_auth}
+    Note over S: argon2.verify(h, K_auth)<br/>si falla o no existe: 401 "Credenciales incorrectas"
+    Note over S: T = firma RS256 con k_S de<br/>{sub, role, auth_time, exp = 15 min}
+    S-->>N: {usuario, T, K_u, c_priv, IV1, c_acc, IV2, w_acc}
+    Note over N: k_u = D_AES(K_enc, IV1, c_priv)<br/>k_acc = D_RSA(k_u, w_acc)<br/>cuenta = D_AES(k_acc, IV2, c_acc)
+    Note over N: sesión solo en memoria:<br/>usuario, cuenta, T, K_enc, k_u, K_u
+    N->>S: GET /transactions · Authorization: Bearer T
+    Note over S: verifica la firma de T con K_S (solo RS256) y exp<br/>el usuario es el sub del token, no un dato del cliente
+    S-->>N: transacciones de u
+    Note over N: 1 minuto antes de que caduque T
+    N->>S: POST /token/refresh · Bearer T
+    Note over S: si auth_time tiene menos de 8 h:<br/>T' con el mismo auth_time
+    S-->>N: {T'}

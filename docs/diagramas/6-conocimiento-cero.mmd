@@ -1,0 +1,31 @@
+flowchart TB
+    subgraph NAV["Solo en el navegador: nunca llega al servidor"]
+        direction LR
+        n1["Contraseña p"] ~~~ n2["K_enc"] ~~~ n3["k_u en claro"] ~~~ n4["k_acc"] ~~~ n5["Número de cuenta<br/>completo"]
+    end
+
+    subgraph CIF["Llega al servidor cifrado: no tiene la clave para leerlo"]
+        direction LR
+        c1["k_u cifrada con K_enc<br/>(AES-256-GCM)"] ~~~ c2["Cuenta cifrada con k_acc<br/>(AES-256-GCM)"] ~~~ c3["k_acc cifrada con K_u<br/>(RSA-OAEP)"]
+    end
+
+    subgraph HSH["Llega pero solo guarda su hash"]
+        h1["K_auth → se guarda Argon2id(K_auth)<br/>no sirve para iniciar sesión si lo roban"]
+    end
+
+    subgraph CLR["Llega y se guarda en claro: lo necesita para funcionar"]
+        direction LR
+        e1["Email<br/>iniciar sesión"] ~~~ e2["Teléfono<br/>buscar destinatario"] ~~~ e3["Nombre y tipo<br/>de usuario"] ~~~ e4["Sal s y<br/>clave pública K_u"] ~~~ e5["4 últimos dígitos<br/>de la cuenta"]
+        e6["Transacción:<br/>emisor, receptor y fecha"] ~~~ e7["Transacción:<br/>cantidad y concepto<br/><b>pendiente de cifrar</b>"]
+    end
+
+    NAV ~~~ CIF ~~~ HSH ~~~ CLR
+
+    classDef secret fill:#fee2e2,stroke:#b91c1c,color:#111827
+    classDef stored fill:#fef3c7,stroke:#b45309,color:#111827
+    classDef public fill:#e0f2fe,stroke:#0369a1,color:#111827
+    classDef pending fill:#ffffff,stroke:#b91c1c,stroke-width:2px,stroke-dasharray: 5 4,color:#b91c1c
+    class n1,n2,n3,n4,n5 secret
+    class c1,c2,c3,h1 stored
+    class e1,e2,e3,e4,e5,e6 public
+    class e7 pending

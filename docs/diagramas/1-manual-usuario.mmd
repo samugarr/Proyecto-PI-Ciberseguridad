@@ -1,0 +1,9 @@
+flowchart TD
+    A(["Abrir https://localhost:4200"]) --> B{"¿Tienes<br/>cuenta?"}
+    B -- No --> C["<b>Crear cuenta</b><br/>nombre, email y teléfono<br/>contraseña de 10 caracteres o más<br/>con letras y números"]
+    C -- "Cuenta creada" --> D
+    B -- Sí --> D["<b>Iniciar sesión</b><br/>email y contraseña<br/><i>si son incorrectos, aviso y se repite</i>"]
+    D -- "Datos correctos" --> E["<b>Mis transacciones</b><br/>↑ Ingreso: dinero recibido<br/>↓ Pago: dinero enviado<br/>nombre, teléfono y cuenta enmascarada<br/>de la otra persona"]
+    E -- "Nueva" --> F["<b>Nueva transacción</b><br/>teléfono del destinatario, cantidad y concepto<br/><i>si el teléfono no existe, aviso y se repite</i>"]
+    F -- "Enviar" --> E
+    E -. "Salir, recargar la página<br/>o 8 horas desde el login" .-> D

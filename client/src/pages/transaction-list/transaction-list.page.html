@@ -1,109 +1,86 @@
-<div class="transactions-page">
-
-  <header class="page-header">
+<main class="page">
+  <header class="page-head">
     <div>
-      <h1>Transacciones</h1>
-      <p>Consulta y gestiona todos los movimientos de tus cuentas.</p>
+      <h1>Movimientos</h1>
+      <p>Dinero enviado y recibido, del más antiguo al más reciente.</p>
     </div>
+    @if (!loading && !errorMessage) {
+      <p class="ledger-count">{{ transactions.length }} {{ transactions.length === 1 ? 'movimiento' : 'movimientos' }}</p>
+    }
   </header>
 
-  <section class="transactions-panel">
-
-    <div class="panel-header">
-      <div>
-        <h2>Listado de movimientos</h2>
-        <p>Revisa el detalle de tus operaciones.</p>
-      </div>
-    </div>
-
-    <div class="table-container">
-      @if (loading) {
-        <p class="loading-message">Cargando transacciones...</p>
-      } @else if (errorMessage) {
-        <p class="error-message">{{ errorMessage }}</p>
-      } @else {
-        <table>
+  <section class="surface ledger">
+    @if (loading) {
+      <p class="ledger-state">Cargando movimientos…</p>
+    } @else if (errorMessage) {
+      <p class="ledger-state ledger-state--error">{{ errorMessage }}</p>
+    } @else {
+      <div class="ledger-scroll">
+        <table class="ledger-table">
           <thead>
             <tr>
-              <th>Transacción</th>
-              <th>Tipo</th>
-              <th>Origen / destino</th>
-              <th>Cuenta</th>
-              <th>Fecha</th>
-              <th>Descripción</th>
-              <th>Importe</th>
+              <th scope="col">Fecha</th>
+              <th scope="col">Concepto</th>
+              <th scope="col">Origen / destino</th>
+              <th scope="col">Cuenta</th>
+              <th scope="col">Tipo</th>
+              <th scope="col" class="num">Importe</th>
             </tr>
           </thead>
 
           <tbody>
-            @for (transaction of this.transactions; track transaction.id) {
+            @for (transaction of transactions; track transaction.id) {
               <tr>
-                <td>
-                  <div class="transaction-name">
-                    {{ transaction.id }}
-                  </div>
-                </td>
-                <td>
-                  @if (isIncoming(transaction)) {
-                    <span class="badge-income">↑ Ingreso</span>
-                  } @else if (isOutgoing(transaction)) {
-                    <span class="badge-payment">↓ Pago</span>
-                  } @else {
-                    <span>Entre otros usuarios</span>
-                  }
+                <td class="ledger-date">
+                  <span>{{ transaction.date | date:'dd/MM/yyyy' }}</span>
+                  <small>{{ transaction.date | date:'HH:mm' }} · n.º {{ transaction.id }}</small>
                 </td>
 
+                <td class="ledger-concept">{{ transaction.description }}</td>
+
                 @if (counterpart(transaction); as party) {
-                  <td>
-                    <div class="transaction-name">
-                      <div>
-                        <strong>{{ party.name }}</strong>
-                        <small>{{ party.telephone }}</small>
-                      </div>
-                    </div>
+                  <td class="ledger-party">
+                    <span>{{ party.name }}</span>
+                    <small>{{ party.telephone }}</small>
                   </td>
-                  <td class="account-cell">{{ party.maskedAccount }}</td>
+                  <td class="ledger-account mono">{{ party.maskedAccount }}</td>
                 } @else {
-                  <td>
-                    <div class="transaction-name">
-                      <div>
-                        <strong>{{ transaction.sender.name }} → {{ transaction.receiver.name }}</strong>
-                        <small>{{ transaction.sender.telephone }} → {{ transaction.receiver.telephone }}</small>
-                      </div>
-                    </div>
+                  <td class="ledger-party">
+                    <span>{{ transaction.sender.name }} → {{ transaction.receiver.name }}</span>
+                    <small>{{ transaction.sender.telephone }} → {{ transaction.receiver.telephone }}</small>
                   </td>
-                  <td class="account-cell">
+                  <td class="ledger-account mono">
                     {{ transaction.sender.maskedAccount }}<br>{{ transaction.receiver.maskedAccount }}
                   </td>
                 }
 
                 <td>
-                  {{ transaction.date | date:'dd/MM/yyyy' }}
+                  @if (isIncoming(transaction)) {
+                    <span class="tag tag--in">Ingreso</span>
+                  } @else if (isOutgoing(transaction)) {
+                    <span class="tag tag--out">Pago</span>
+                  } @else {
+                    <span class="tag">Entre usuarios</span>
+                  }
                 </td>
 
-                <td>
-                  {{ transaction.description }}
-                </td>
-                <td>
-                  {{ transaction.amount }}
+                <td class="num ledger-amount"
+                    [class.ledger-amount--in]="isIncoming(transaction)"
+                    [class.ledger-amount--out]="isOutgoing(transaction)">
+                  @if (isIncoming(transaction)) {+}@else if (isOutgoing(transaction)) {−}{{ transaction.amount }} €
                 </td>
               </tr>
             } @empty {
               <tr>
-                <td colspan="7" class="empty-state">
-                  <span>🔎</span>
-                  <p>No se han encontrado transacciones.</p>
+                <td colspan="6" class="ledger-empty">
+                  <strong>Todavía no hay movimientos.</strong>
+                  <span>Cuando envíes o recibas dinero aparecerá aquí.</span>
                 </td>
               </tr>
             }
           </tbody>
         </table>
-      }
-    </div>
-
-    <footer class="table-footer">
-      Mostrando {{ transactions.length }} transacciones
-    </footer>
-
+      </div>
+    }
   </section>
-</div>
+</main>

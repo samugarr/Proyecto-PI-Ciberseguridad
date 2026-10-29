@@ -1,0 +1,38 @@
+{
+ "theme": "base",
+ "themeVariables": {
+  "fontFamily": "Inter, DejaVu Sans, sans-serif",
+  "fontSize": "15px",
+  "primaryColor": "#eef2ff",
+  "primaryBorderColor": "#4f5d95",
+  "primaryTextColor": "#111827",
+  "lineColor": "#374151",
+  "clusterBkg": "#f9fafb",
+  "clusterBorder": "#9ca3af",
+  "actorBkg": "#eef2ff",
+  "actorBorder": "#4f5d95",
+  "noteBkgColor": "#fffbeb",
+  "noteBorderColor": "#d4a017",
+  "signalColor": "#374151",
+  "signalTextColor": "#111827"
+ },
+ "flowchart": {
+  "curve": "basis",
+  "padding": 12,
+  "htmlLabels": true
+ },
+ "sequence": {
+  "mirrorActors": false,
+  "noteAlign": "left",
+  "wrap": false,
+  "actorFontFamily": "Inter",
+  "messageFontFamily": "Inter",
+  "noteFontFamily": "Inter",
+  "actorFontSize": 15,
+  "messageFontSize": 15,
+  "noteFontSize": 15,
+  "boxMargin": 10,
+  "noteMargin": 12
+ },
+ "fontFamily": "Inter, DejaVu Sans, sans-serif"
+}

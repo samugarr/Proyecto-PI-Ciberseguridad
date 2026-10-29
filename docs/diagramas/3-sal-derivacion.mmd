@@ -1,0 +1,28 @@
+flowchart LR
+    subgraph NAV["Navegador"]
+        p["Contraseña <b>p</b>"]
+        s["Sal <b>s</b> (16 bytes)<br/><b>registro:</b> aleatoria<br/>(crypto.getRandomValues)<br/><b>login:</b> la devuelve POST /salt<br/>email inexistente: s falsa<br/>= HMAC-SHA256(secreto, email)"]
+        A["<b>Argon2id(p, s)</b><br/>64 MiB · 3 iteraciones<br/>1 hilo · 64 bytes"]
+        KA["<b>K_auth</b><br/>bytes 0-31"]
+        KE["<b>K_enc</b><br/>bytes 32-63<br/>no sale del navegador;<br/>cifra k_u"]
+        p --> A
+        s --> A
+        A --> KA
+        A --> KE
+    end
+
+    subgraph SV["Servidor"]
+        H["<b>registro</b><br/>h = Argon2id(K_auth)<br/>con sal propia<br/>(formato PHC)"]
+        DB[("users.json<br/>s en claro · h")]
+        V["<b>login</b><br/>argon2.verify(h, K_auth)<br/>email inexistente:<br/>hash ficticio, mismo error<br/>y mismo tiempo"]
+        H --> DB
+        DB --> V
+    end
+
+    KA -- "registro: K_auth y s" --> H
+    KA -- "login: K_auth" --> V
+
+    classDef secret fill:#fee2e2,stroke:#b91c1c,color:#111827
+    classDef stored fill:#fef3c7,stroke:#b45309,color:#111827
+    class p,KE secret
+    class DB,H stored

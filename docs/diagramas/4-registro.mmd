@@ -1,0 +1,14 @@
+sequenceDiagram
+    autonumber
+    participant N as Navegador de u
+    participant S as Servidor S
+    Note over N: s ← aleatorio(16 B)
+    Note over N: R = Argon2id(p, s)<br/>K_auth = R[0..31] · K_enc = R[32..63]
+    Note over N: (K_u, k_u) ← RSA-OAEP 2048
+    Note over N: IV1 ← aleatorio(12 B)<br/>c_priv = E_AES(K_enc, IV1, k_u)
+    Note over N: cuenta ← "ES" + 22 dígitos aleatorios<br/>k_acc ← aleatorio(32 B) · IV2 ← aleatorio(12 B)<br/>c_acc = E_AES(k_acc, IV2, cuenta)<br/>w_acc = E_RSA(K_u, k_acc)
+    N->>S: POST /user por TLS<br/>{nombre, email, teléfono, K_auth, s, K_u,<br/>c_priv, IV1, c_acc, IV2, w_acc, últimos 4 dígitos}
+    Note over S: valida formatos y que email y teléfono sean únicos<br/>h = Argon2id(K_auth) con sal propia
+    Note over S: guarda: datos públicos, s, h, K_u,<br/>c_priv, IV1, c_acc, IV2, w_acc, últimos 4 dígitos
+    S-->>N: 201 {id, nombre, email, teléfono, tipo}
+    Note over N: p, K_enc, k_u, k_acc y la cuenta<br/>no se guardan en ningún sitio

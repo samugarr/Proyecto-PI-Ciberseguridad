@@ -1,0 +1,42 @@
+flowchart LR
+    subgraph USR["Claves del usuario u · se generan en el navegador al registrarse"]
+        KE["<b>K_enc</b><br/>AES-256<br/>derivada de la contraseña"]
+        ku["<b>k_u</b> privada<br/>RSA-OAEP 2048, PKCS#8"]
+        Ku["<b>K_u</b> pública<br/>RSA-OAEP 2048, SPKI"]
+        kacc["<b>k_acc</b><br/>AES-256 aleatoria"]
+        acc["Número de cuenta"]
+    end
+
+    subgraph DB["Lo que guarda el servidor (users.json)"]
+        cpriv[("E_AES(K_enc, k_u)<br/>+ IV 12 B")]
+        pub[("K_u en claro")]
+        wacc[("E_RSA(K_u, k_acc)")]
+        cacc[("E_AES(k_acc, cuenta)<br/>+ IV 12 B")]
+    end
+
+    KE -- "cifra con AES-256-GCM" --> cpriv
+    ku -. "es lo que se cifra" .-> cpriv
+    Ku -- "se envía tal cual" --> pub
+    Ku -- "cifra k_acc con RSA-OAEP" --> wacc
+    kacc -. "es lo que se cifra" .-> wacc
+    kacc -- "cifra con AES-256-GCM" --> cacc
+    acc -. "es lo que se cifra" .-> cacc
+
+    subgraph SRV["Claves del servidor · nunca salen de él"]
+        kS["<b>k_S</b> privada<br/>RSA 2048<br/>server/secrets/jwt-private.pem"]
+        KS["<b>K_S</b> pública<br/>server/secrets/jwt-public.pem"]
+        cert["Certificado TLS<br/>RSA 2048, SHA-256<br/>server/certs"]
+    end
+    T["<b>Token JWT</b><br/>sub, role, auth_time<br/>caduca a los 15 min"]
+    canal["HTTPS<br/>navegador ↔ Angular ↔ Express"]
+
+    kS -- "firma con RS256" --> T
+    KS -- "verifica la firma en cada petición" --> T
+    cert -- "cifra el canal" --> canal
+
+    classDef secret fill:#fee2e2,stroke:#b91c1c,color:#111827
+    classDef stored fill:#fef3c7,stroke:#b45309,color:#111827
+    classDef public fill:#e0f2fe,stroke:#0369a1,color:#111827
+    class KE,ku,kacc,acc,kS secret
+    class cpriv,wacc,cacc stored
+    class Ku,pub,KS,T,cert,canal public
