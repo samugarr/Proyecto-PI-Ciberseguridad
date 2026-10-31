@@ -43,7 +43,7 @@ export class NewTransactionPage implements OnInit {
       return;
     }
     if (!this.description.trim()) {
-      alert('Introduce una descripción');
+      alert('Introduce un concepto para la transacción');
       return;
     }
 
