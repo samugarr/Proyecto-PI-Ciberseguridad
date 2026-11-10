@@ -3,3 +3,4 @@ vendor/
 dist/
 server/certs/
 server/secrets/
+server/data/reports/
