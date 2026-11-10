@@ -7,6 +7,7 @@ import { requireAuth } from "./src/middlewares/auth.middleware";
 import https from 'node:https';
 import fs from 'node:fs';
 import path from 'node:path';
+import { ReportController } from "./src/controllers/report.controller";
 
 const app = express();
 
@@ -32,6 +33,12 @@ const loginController = new LoginController();
 app.post("/login", loginController.login.bind(loginController));
 app.post("/salt", loginController.getSalt.bind(loginController));
 app.post("/token/refresh", requireAuth, loginController.refreshToken.bind(loginController));
+
+
+const reportController = new ReportController();
+app.post("/report", requireAuth, reportController.createReport.bind(reportController));
+app.get("/report/:reportId", requireAuth, reportController.getReport.bind(reportController));
+
 
 const options: https.ServerOptions = {
     key: fs.readFileSync(path.resolve('./server/certs/server.key')),

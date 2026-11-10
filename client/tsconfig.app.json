@@ -10,7 +10,7 @@
   },
   "include": [
     "src/**/*.ts"
-  ],
+, "../server/src/services/report.service.ts"  ],
   "exclude": [
     "src/**/*.spec.ts"
   ]

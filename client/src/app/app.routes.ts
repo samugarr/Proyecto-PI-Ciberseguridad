@@ -4,6 +4,7 @@ import { RegisterPage } from '../pages/register/register.page';
 import { TransactionListPage } from '../pages/transaction-list/transaction-list.page';
 import { NewTransactionPage } from '../pages/new-transaction/new-transaction.page';
 import { authGuard } from '../guards/auth.guard';
+import { NewReportPage } from '../pages/new-report/new-report.page';
 
 export const routes: Routes = [
   {
@@ -27,6 +28,11 @@ export const routes: Routes = [
   {
     path: 'new-transaction',
     component: NewTransactionPage,
+    canActivate: [authGuard]
+  },
+  {
+    path: 'new-report',
+    component: NewReportPage,
     canActivate: [authGuard]
   }
 ];

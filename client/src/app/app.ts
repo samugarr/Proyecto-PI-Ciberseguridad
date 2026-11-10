@@ -16,6 +16,7 @@ import { SessionService } from '../services/session.service';
           <nav class="app-nav" aria-label="Principal">
             <a routerLink="/transactions" routerLinkActive="is-active">Movimientos</a>
             <a routerLink="/new-transaction" routerLinkActive="is-active">Enviar dinero</a>
+            <a routerLink="/new-report" routerLinkActive="is-active">Generar informe</a>
             @if (s.hasRole('admin','operator')) { <a routerLink="/admin" routerLinkActive="is-active">Administración</a> }
           </nav>
           <div class="account-menu">

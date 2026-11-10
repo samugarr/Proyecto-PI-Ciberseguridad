@@ -1,0 +1,18 @@
+<main class="page">
+  <header class="page-head">
+    <div>
+      <h1>Generar informe</h1>
+      <p>Genera un documento PDF con la información de tus transacciones.</p>
+    </div>
+  </header>
+
+  <div class="send-layout">
+    <form class="surface send-form" (ngSubmit)="createReport()">
+      <div class="send-form__actions">
+        <button type="submit" class="btn btn-primary" [disabled]="sending">
+          {{ sending ? 'Generando' : 'Crear informe' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</main>
